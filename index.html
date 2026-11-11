@@ -66,6 +66,8 @@
   <div class="wrap two">
     <div class="prose">
     <h2><span class="secno">1</span>Six cones, one arrow per cone</h2>
+      <p>Think of a road network between cities. A road between every pair of cities is far too expensive, so we keep only a few roads, but we still want every trip to be short: never much longer than the straight line. A graph like this is called a <b>spanner</b>, and its worst detour factor is its <b>spanning ratio</b>. Θ-graphs are one of the simplest ways to build one: each city only builds a road to its nearest neighbour in a few directions.</p>
+      <p>Now make every road one-way. You can still leave a city in every direction, but the road back may not exist, so a trip may have to go around. This is the <em>directed</em> Θ<sub>6</sub>-graph, and the paper shows that the detour can get as bad as 5 times the straight line, but never worse.</p>
       <p>Let \(P\) be a finite set of points in the plane. The three lines of slope \(-\sqrt3\), \(0\) and \(\sqrt3\) through a point \(u\) cut the plane into six cones of 60°, numbered \(C_u^0,\dots,C_u^5\) counter-clockwise, starting with \(C_u^0\) directly below \(u\). In each non-empty cone, \(u\) gets <b>one outgoing edge</b>: to the point whose orthogonal projection on the bisector of the cone is closest to \(u\). Θ-graphs were introduced independently by Clarkson [<a href="#r6">6</a>] and by Keil and Gutwin [<a href="#r7">7</a>].</p>
       <p>Equivalently, \(u\to v\) is an edge exactly when the <b>canonical triangle</b> \(\nabla_u^v\) (the equilateral triangle with a corner at \(u\), sides parallel to the cone boundaries, and \(v\) on the opposite side) contains no point of \(P\) in its interior. The far side of \(\nabla_u^v\) is exactly the level line of the projection, so the two definitions are the same. My code builds the graph both ways and checks that they agree (<a href="#checks-sec">§6</a>).</p>
       <p>Every vertex has out-degree at most 6, but in-degree can be large. The <b>spanning ratio</b> is</p>
@@ -124,7 +126,7 @@
         <div class="kv"><span>points n</span><b id="lab-stat-n">0</b></div>
         <div class="kv"><span>directed edges</span><b id="lab-stat-m">0</b></div>
         <div class="kv"><span>ratio, undirected Θ<sub>6</sub></span><b id="lab-stat-und">—</b></div>
-        <div class="kv"><span>max \(d(s,t)/\|st\|_{98}\)</span><b id="lab-stat-98">—</b></div>
+        <div class="kv"><span>max \(d(s,t)/\|st\|_{\tipn}\)</span><b id="lab-stat-98">—</b></div>
         <div class="kv"><span>max greedy-routing ratio</span><b id="lab-stat-greedy">—</b></div>
         <h4>Route</h4>
        <div id="lab-route"></div>
@@ -182,7 +184,7 @@
         <button class="btn sm ghost" id="lb-fit">Fit</button>
      </div>
       <canvas class="cv cv-wide" aria-label="Lower bound construction"></canvas>
-      <figcaption><span id="lb-odo" class="mono">Drag to pan, ctrl + wheel to zoom.</span> The dashed hexagon is the unit ball of \(\|\cdot\|_{97}\) around \(t\). The red dashed path \(p^0\to r\to p^k\) is the unfolding of the zig-zag. The \(q^i\) are drawn in orange.</figcaption>
+      <figcaption><span id="lb-odo" class="mono">Drag to pan, ctrl + wheel to zoom.</span> The dashed hexagon is the unit ball of \(\|\cdot\|_{\hexn}\) around \(t\). The red dashed path \(p^0\to r\to p^k\) is the unfolding of the zig-zag. The \(q^i\) are drawn in orange.</figcaption>
     </figure>
 
     <div class="two">
@@ -245,25 +247,25 @@
    <div class="two">
       <div class="prose">
         <p>The paper proves something stronger than \(d(s,t)\le 5|st|\):</p>
-        <p class="thm"><b>Theorem 1.</b> For every \(P\) in general position and all \(s,t\in P\): \(d_{\Theta_6}(s,t)\le 5\|st\|_{98}\le 5|st|\).</p>
-       <p>Here \(\|\cdot\|_{97}\) is the hexagonal norm whose unit ball is the regular hexagon with corners \((\pm1,0)\) (it defines Θ<sub>6</sub>), and \(\|\cdot\|_{98}\) is the "tipped" hexagonal norm whose unit ball has corners \((0,\pm 2/\sqrt3)\). We have \(\|\cdot\|_{98}\le\|\cdot\|_2\le\|\cdot\|_{97}\).</p>
+        <p class="thm"><b>Theorem 1.</b> For every \(P\) in general position and all \(s,t\in P\): \(d_{\Theta_6}(s,t)\le 5\|st\|_{\tipn}\le 5|st|\).</p>
+       <p>The idea is to measure distances with hexagons instead of circles, because hexagons fit the six cones. Here \(\|\cdot\|_{\hexn}\) is the hexagonal norm whose unit ball is the regular hexagon with corners \((\pm1,0)\) (it defines Θ<sub>6</sub>), and \(\|\cdot\|_{\tipn}\) is the "tipped" hexagonal norm whose unit ball has corners \((0,\pm 2/\sqrt3)\). We have \(\|\cdot\|_{\tipn}\le\|\cdot\|_2\le\|\cdot\|_{\hexn}\).</p>
         <ol class="steps">
-          <li><b>Induction on \(\|st\|_{97}\).</b> The closest pair is a direct edge. Normalise \(\|st\|_{97}=1\) and, by symmetry, \(s\in C_t^0\) to the right of the bisector \(B_t^0\).</li>
-          <li><b>Lemma 2.</b> Let \(y_0\) be the side of the triangle \(T=C_t^0\cap C_s^2\). Then \(1=\|st\|_{98}+\tfrac12 y_0\), so the target is \(5\|st\|_{98}=5-2.5\,y_0\). <span class="tag ok">checked numerically</span></li>
-          <li><b>Empty region (Def. 1, Lemma 4).</b> Let \(p=B_s^3\cap B_t^1\) and \(q=B_s^4\cap B_t^0\), and let \(R\) be the parallelogram \(sqtp\) together with \(\nabla_s^p\) and \(\nabla_s^q\). If \(d(s,t)&gt;5\|st\|_{98}\), then no point is inside \(R\), the edge \(sy\) of \(C_s^3\) ends in \(C_t^1\), and \(2.5y_0+3.5y_1&lt;1\), where \(y_1=1-\|\nabla_s^y\|\). <span class="tag ok">figure</span></li>
-          <li><b>Greedy paths and spirals.</b> The greedy path towards \(t\) may spiral, so the paper follows it only until its first edge crossing a boundary ray of \(t\). An edge that crosses both \(B_t^0\) and \(B_t^1\) ends at least twice as close to \(t\) as it is long (Lemma 9). <span class="tag todo">figure planned</span></li>
-          <li><b>Two candidate paths.</b> The <em>y-path</em> goes counter-clockwise around \(t\), the <em>x-path</em> clockwise. Their lengths give a system of linear inequalities in \(y_0, y_1, \dots\) <span class="tag todo">to explain</span></li>
-          <li><b>Linear programming.</b> Under two assumptions there are \(2\times2\times5=20\) cases. In 16 of them, linear programming shows that the system has no solution. The other 4 need a third, shortcut path. The cases where the assumptions fail are handled in the full version. <span class="tag todo">reproduce one LP in the page</span></li>
+          <li><b>Induction on \(\|st\|_{\hexn}\).</b> Assume the bound holds for every pair that is closer than \(s\) and \(t\), and look for a short enough path from \(s\) to \(t\). The closest pair is a direct edge. Normalise \(\|st\|_{\hexn}=1\) and, by symmetry, \(s\in C_t^0\) to the right of the bisector \(B_t^0\).</li>
+          <li><b>Lemma 2.</b> The target length can be read off one small triangle between \(s\) and \(t\): the bigger the triangle, the smaller the target. Let \(y_0\) be the side of the triangle \(T=C_t^0\cap C_s^2\). Then \(1=\|st\|_{\tipn}+\tfrac12 y_0\), so the target is \(5\|st\|_{\tipn}=5-2.5\,y_0\). <span class="tag ok">checked numerically</span></li>
+          <li><b>Empty region (Def. 1, Lemma 4).</b> If \(s,t\) were a counterexample, a whole region between them would have to be empty, and the arrow leaving \(s\) upwards would have to land in a small window. Let \(p=B_s^3\cap B_t^1\) and \(q=B_s^4\cap B_t^0\), and let \(R\) be the parallelogram \(sqtp\) together with \(\nabla_s^p\) and \(\nabla_s^q\). If \(d(s,t)&gt;5\|st\|_{\tipn}\), then no point is inside \(R\), the edge \(sy\) of \(C_s^3\) ends in \(C_t^1\), and \(2.5y_0+3.5y_1&lt;1\), where \(y_1=1-\|\nabla_s^y\|\). <span class="tag ok">figure</span></li>
+          <li><b>Greedy paths and spirals.</b> Arrows towards \(t\) can circle around it, so the paper only follows them for a short stretch. The greedy path towards \(t\) may spiral, so the paper follows it only until its first edge crossing a boundary ray of \(t\). An edge that crosses both \(B_t^0\) and \(B_t^1\) ends at least twice as close to \(t\) as it is long (Lemma 9). <span class="tag todo">figure planned</span></li>
+          <li><b>Two candidate paths.</b> There are two natural ways to reach \(t\), one on each side. If both were too long, the positions of the points would have to satisfy a list of inequalities. The <em>y-path</em> goes counter-clockwise around \(t\), the <em>x-path</em> clockwise. Their lengths give a system of linear inequalities in \(y_0, y_1, \dots\) <span class="tag todo">to explain</span></li>
+          <li><b>Linear programming.</b> These inequalities can never all hold at the same time, and this is checked case by case. Under two assumptions there are \(2\times2\times5=20\) cases. In 16 of them, linear programming shows that the system has no solution. The other 4 need a third, shortcut path. The cases where the assumptions fail are handled in the full version. <span class="tag todo">reproduce one LP in the page</span></li>
         </ol>
       </div>
       <figure id="proof-fig" class="fig">
         <canvas class="cv cv-square" aria-label="Proof figure: region R, triangle T and the window for y"></canvas>
-        <figcaption>Drag \(s\) along the bottom side of the unit hexagon (\(\|st\|_{97}=1\)), and drag \(y\). <span class="key key-r"></span> region \(R\) · <span class="key key-t"></span> triangle \(T\), side \(y_0\) · <span class="key key-w"></span> the only places where the edge \(sy\) could end in a counterexample (Lemma 4).</figcaption>
+        <figcaption>Drag \(s\) along the bottom side of the unit hexagon (\(\|st\|_{\hexn}=1\)), and drag \(y\). <span class="key key-r"></span> region \(R\) · <span class="key key-t"></span> triangle \(T\), side \(y_0\) · <span class="key key-w"></span> the only places where the edge \(sy\) could end in a counterexample (Lemma 4).</figcaption>
         <div class="statgrid tight">
           <div class="kv"><span>\(|st|\)</span><b id="pf-st2">—</b></div>
-          <div class="kv"><span>\(\|st\|_{98}\)</span><b id="pf-st98">—</b></div>
+          <div class="kv"><span>\(\|st\|_{\tipn}\)</span><b id="pf-st98">—</b></div>
           <div class="kv"><span>\(y_0\)</span><b id="pf-y0">—</b></div>
-          <div class="kv"><span>\(5\|st\|_{98}\)</span><b id="pf-bound">—</b></div>
+          <div class="kv"><span>\(5\|st\|_{\tipn}\)</span><b id="pf-bound">—</b></div>
           <div class="kv"><span>\(5-2.5y_0\)</span><b id="pf-bound2">—</b></div>
           <div class="kv"><span>\(y_1=1-\|\nabla_s^y\|\)</span><b id="pf-y1">—</b></div>
           <div class="kv"><span>\(2.5y_0+3.5y_1\)</span><b id="pf-lhs">—</b></div>

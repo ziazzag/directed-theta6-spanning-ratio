@@ -17,7 +17,7 @@
     label();
 
     if (window.renderMathInElement) {
-      renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false });
+      renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false, macros: { '\\hexn': '\\text{\\large ⬣}', '\\tipn': '\\text{\\large ⬡}' } });
     }
 
     // nav highlight

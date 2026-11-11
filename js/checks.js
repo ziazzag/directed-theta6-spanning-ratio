@@ -26,8 +26,8 @@
       },
     },
     {
-      name: 'Directed Θ6: d(s,t) ≤ 5‖st‖₉₈ ≤ 5|st| (Theorem 1)', 
-      what: 'max of d(s,t)/‖st‖₉₈ over 200 random sets; also strong connectivity',
+      name: 'Directed Θ6: d(s,t) ≤ 5‖st‖⬡ ≤ 5|st| (Theorem 1)', 
+      what: 'max of d(s,t)/‖st‖⬡ over 200 random sets; also strong connectivity',
       run() {
         const rand = T.rng(3); let m = 0, conn = true;  
         for (let k = 0; k < 200; k++) {
@@ -39,7 +39,7 @@
       },
     },
     {
-      name: 'Norm sandwich ‖·‖₉₈ ≤ ‖·‖₂ ≤ ‖·‖₉₇',
+      name: 'Norm sandwich ‖·‖⬡ ≤ ‖·‖₂ ≤ ‖·‖⬣',
       what: '50 000 random vectors',
       run() {
         const rand = T.rng(4);
@@ -51,7 +51,7 @@
       },
     },
     {
-      name: 'Lemma 2: ‖uv‖₉₇ = ‖uv‖₉₈ + ½·min(side of C_u^i ∩ C_v^{i±2})',
+      name: 'Lemma 2: ‖uv‖⬣ = ‖uv‖⬡ + ½·min(side of C_u^i ∩ C_v^{i±2})',
       what: '50 000 random vectors, triangle sides computed geometrically',
       run() {
         const rand = T.rng(5); let worst = 0;
