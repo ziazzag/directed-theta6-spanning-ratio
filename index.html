@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directed Θ6 Spanner</title>
+<meta name="description" content="Interactive companion to 'The Spanning Ratio of the Directed Θ6-Graph Is 5' (Bose, De Carufel, Stuart, Hill, SoCG 2026). INFO-F420 project, preliminary version.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28 9v14l-12 7-12-7V9z' fill='%2317181c'/%3E%3Ctext x='16' y='21' font-size='13' text-anchor='middle' fill='white' font-family='serif'%3E%CE%98%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Source+Code+Pro:wght@400;500;600&family=Spectral:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script defer src="js/theta6.js"></script> 
+<script defer src="js/view.js"></script>
+<script defer src="js/lab.js"></script>
+<script defer src="js/figures.js"></script>
+<script defer src="js/worst.js"></script>
+<script defer src="js/checks.js"></script>
+<script defer src="js/main.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#top"><span class="hexmark" aria-hidden="true">Θ</span><span>Directed Θ<sub>6</sub></span></a>
+  <nav class="nav" aria-label="Sections">
+    <a href="#definition">Definition</a>
+    <a href="#lab">Lab</a>
+    <a href="#worst">Worst case</a>
+    <a href="#play">Game</a>
+    <a href="#proof">Proof</a>
+    <a href="#checks-sec">Checks</a>
+    <a href="#status">Status</a>
+    <a href="#refs">References</a>
+  </nav>
+  <button id="theme-toggle" class="iconbtn" type="button" aria-label="Toggle theme">☾</button>
+</header>
+
+<main id="top">
+
+<!-- hero -->
+<section class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-fade" aria-hidden="true"></div>
+  <div class="hero-inner">
+      <p class="eyebrow">INFO-F420 Computational Geometry · ULB · <span class="pill">Preliminary version · 11 Nov 2026</span></p>
+    <h1>Follow the arrows,<br>and you may walk <em>five</em> times too far.</h1>
+    <p class="lede">An interactive companion to <cite>The Spanning Ratio of the Directed Θ<sub>6</sub>-Graph Is 5</cite> by Bose, De Carufel, Stuart and Hill (SoCG 2026) [<a href="#r1">1</a>]. Build Θ<sub>6</sub>-graphs, watch greedy routing, rebuild the worst case of the paper and check it numerically.</p>
+    <p class="byline">Zachary Iazzag · solo project</p>
+    <div class="cta">
+      <a class="btn primary" href="#lab">Open the lab</a>
+      <a class="btn" href="#worst">See the 5 − ε construction</a>
+    </div>
+    <p class="numbers-cap">Worst-case spanning ratio: how many times longer than the straight line the shortest path in the graph can be.</p>
+    <div class="numbers">
+      <div><b>2</b><span>undirected Θ<sub>6</sub> (every edge usable both ways), tight bound [<a href="#r4">4</a>, <a href="#r5">5</a>]</span></div>
+      <div><b>4 to 7</b><span>directed Θ<sub>6</sub>, best bounds known before this paper [<a href="#r3">3</a>]</span></div>
+      <div class="hl"><b>5</b><span>directed Θ<sub>6</sub>, exact value proved in this paper [<a href="#r1">1</a>]</span></div>
+    </div>
+    <p class="live-note">Background: a live directed Θ<sub>6</sub>-graph; the dark path is its current worst pair, ratio <b id="hero-live">—</b>.</p>
+  </div>
+</section>
+
+<section id="definition" class="band">
+  <div class="wrap two">
+    <div class="prose">
+    <h2><span class="secno">1</span>Six cones, one arrow per cone</h2>
+      <p>Let \(P\) be a finite set of points in the plane. The three lines of slope \(-\sqrt3\), \(0\) and \(\sqrt3\) through a point \(u\) cut the plane into six cones of 60°, numbered \(C_u^0,\dots,C_u^5\) counter-clockwise, starting with \(C_u^0\) directly below \(u\). In each non-empty cone, \(u\) gets <b>one outgoing edge</b>: to the point whose orthogonal projection on the bisector of the cone is closest to \(u\). Θ-graphs were introduced independently by Clarkson [<a href="#r6">6</a>] and by Keil and Gutwin [<a href="#r7">7</a>].</p>
+      <p>Equivalently, \(u\to v\) is an edge exactly when the <b>canonical triangle</b> \(\nabla_u^v\) (the equilateral triangle with a corner at \(u\), sides parallel to the cone boundaries, and \(v\) on the opposite side) contains no point of \(P\) in its interior. The far side of \(\nabla_u^v\) is exactly the level line of the projection, so the two definitions are the same. My code builds the graph both ways and checks that they agree (<a href="#checks-sec">§6</a>).</p>
+      <p>Every vertex has out-degree at most 6, but in-degree can be large. The <b>spanning ratio</b> is</p>
+      $$\rho(G) = \max_{s\neq t\in P} \frac{d_G(s,t)}{|st|},$$
+      <p>where \(d_G\) is the length of a shortest <em>directed</em> path. As in the paper, I assume general position: no two points on a line of slope \(0\) or \(\pm\sqrt3\), so that no point lies on a cone boundary.</p>
+    </div>
+    <figure id="def-fig" class="fig"> 
+      <div class="seg" role="group" aria-label="Definition">
+        <button data-defmode="proj" aria-pressed="true">Closest projection on the bisector</button>
+        <button data-defmode="tri" aria-pressed="false">Empty canonical triangle</button>
+      </div>
+      <canvas class="cv cv-square" aria-label="The six cones around u and its outgoing edges. Drag any point."></canvas>
+      <figcaption>Drag \(u\) or any other point. Left: each point is projected on the bisector of its cone, and the closest projection wins. Right: the triangles \(\nabla_u^v\) of the winners are empty. Both views always give the same arrows.</figcaption> 
+    </figure>
+  </div>
+</section>
+
+<!-- lab -->
+<section id="lab" class="band alt">
+  <div class="wrap">
+      <h2><span class="secno">2</span>Build a graph, break a path</h2>
+    <p class="intro">Click to add points, drag to move, right-click (or shift-click) to delete. The graph, its exact spanning ratio and its worst pair update live. Hover a point to see its cones and the empty triangles of its edges. In <b>Route</b> mode, click \(s\) then \(t\) to compare the shortest directed path with greedy routing.</p>
+    <div class="lab">
+      <div class="lab-main">
+        <div class="toolbar">
+          <div class="seg" role="group" aria-label="Mode">
+            <button data-mode="edit" aria-pressed="true">Edit</button>
+            <button data-mode="route" aria-pressed="false">Route s → t</button>  
+          </div>
+          <span class="sep"></span>
+          <label class="slider">n <input id="lab-n" type="range" min="3" max="80" value="20"><output id="lab-n-out">20</output></label>
+           <button class="btn sm" data-preset="random">Random</button>
+          <button class="btn sm" data-preset="grid">Grid</button>
+          <button class="btn sm" data-preset="circle">Circle</button>
+          <button class="btn sm" data-preset="five">5 points ≈ 4</button>
+          <button class="btn sm" data-preset="lower">Lemma 1, δ = 0.06</button>
+          <button class="btn sm ghost" data-preset="clear">Clear</button>
+        </div>
+        <canvas class="cv cv-lab" aria-label="Θ6 explorer canvas"></canvas>
+        <div class="toolbar small">
+          <label><input id="lab-und" type="checkbox"> undirected Θ<sub>6</sub></label>
+          <label><input id="lab-cones" type="checkbox" checked> cones on hover</label>
+          <label><input id="lab-tri" type="checkbox" checked> empty triangles on hover</label>
+          <label><input id="lab-worst" type="checkbox" checked> show worst pair</label>
+          <span class="sep"></span>
+          <button class="btn sm ghost" id="lab-export">Export JSON</button>
+          <label class="btn sm ghost file">Import JSON<input id="lab-import" type="file" accept=".json,application/json"></label>
+        </div>
+      </div>
+      <aside class="panel">
+        <div class="bigstat">
+          <span>spanning ratio (directed)</span>
+          <b id="lab-stat-ratio">—</b>
+          <div class="meter" id="lab-bar"><i></i><em style="left:25%">2</em><em style="left:75%">4</em><em style="left:100%">5</em></div>
+        </div>
+        <div class="kv"><span>points n</span><b id="lab-stat-n">0</b></div>
+        <div class="kv"><span>directed edges</span><b id="lab-stat-m">0</b></div>
+        <div class="kv"><span>ratio, undirected Θ<sub>6</sub></span><b id="lab-stat-und">—</b></div>
+        <div class="kv"><span>max \(d(s,t)/\|st\|_{98}\)</span><b id="lab-stat-98">—</b></div>
+        <div class="kv"><span>max greedy-routing ratio</span><b id="lab-stat-greedy">—</b></div>
+        <h4>Route</h4>
+       <div id="lab-route"></div>
+        <button class="btn sm" id="lab-play">▶ Replay greedy</button>
+        <div class="legend">
+          <span><i class="sw sw-sp"></i>shortest directed path</span>
+          <span><i class="sw sw-greedy"></i>greedy routing</span>
+          <span class="cones-legend">edge colour = cone of its tail: <i style="--c:var(--c0)">0</i><i style="--c:var(--c1)">1</i><i style="--c:var(--c2)">2</i><i style="--c:var(--c3)">3</i><i style="--c:var(--c4)">4</i><i style="--c:var(--c5)">5</i></span>
+        </div>
+      </aside>
+    </div>
+    <div class="notes three">
+      <div><h4>How it is computed</h4><p>Brute force: for each \(u\), the closest projection in each cone, \(O(n^2)\). The exact spanning ratio runs Dijkstra from every vertex on the \(\le 6n\) edges, \(O(n^2\log n)\). This is instant for the sizes used here, so I did not implement the \(O(n\log n)\) sweep of [<a href="#r8">8</a>].</p></div>
+      <div><h4>Greedy routing</h4><p>From the current vertex \(a\), take the out-edge in the cone of \(a\) that contains \(t\). This edge always exists, since \(t\) itself is in that cone. In Θ<sub>6</sub> the greedy path can spiral around \(t\) many times while making little progress [<a href="#r2">2</a>, <a href="#r3">3</a>]. Bounded greedy routing is only known for \(k\ge 7\) cones [<a href="#r9">9</a>].</p></div>
+      <div><h4>Things to try</h4><p>Load <b>5 points ≈ 4</b>: the points \(s,a,b,c,t\) of the construction below, without the zig-zag, already give 3.966. The ratio tends to 4 as δ → 0. Switch to undirected and see the ratio fall under 2. Compare the greedy path and the shortest path on random sets: they often differ.</p></div>
+    </div>
+ </div>
+</section>
+
+<!-- lower bound -->
+<section id="worst" class="band">
+  <div class="wrap">
+    <h2><span class="secno">3</span>Rebuilding the 5 − ε construction</h2>
+    <div class="two">
+      <div class="prose"> 
+        <p><b>Lemma 1</b> of the paper: for every \(\varepsilon&gt;0\) there is a point set whose directed Θ<sub>6</sub>-graph has spanning ratio at least \(5-\varepsilon\). Fix \(0&lt;\delta&lt;\varepsilon/72\), \(t=(0,0)\), and put \(s, a, b, c\) close to four corners of the unit hexagon around \(t\):</p>
+        $$\begin{aligned} s&=(-1,0)+\delta(1,-1), & a&=(-\tfrac12,\tfrac{\sqrt3}{2})+\delta(1,-2),\\ b&=(\tfrac12,\tfrac{\sqrt3}{2})+\delta(-2,-3), & c&=(1,0)+\delta(-6,1). \end{aligned}$$
+        <p>Then two almost parallel lines through \(t\) are added: the points \(p^0,p^1,\dots,p^k\) on the line of slope \(-\delta\) and \(q^0,\dots,q^{k-1}\) on the segment \(ct\). Consecutive points are linked by segments of slope \(\pm(\sqrt3-\delta)\), so they form a zig-zag that gets smaller towards \(t\). From each vertex of the path, all later vertices are in the same cone. So the only way from \(s\) to \(t\) is</p>
+        <p class="path">s → a → b → c → p⁰ → q⁰ → p¹ → q¹ → ⋯ → pᵏ → t.</p>
+        <p>The first three edges have length ≈ 1 each. <b>Unfolding</b> the zig-zag gives the key step: its length equals \(|p^0r|+|rp^k|\), where \(r\approx(\tfrac12,\tfrac{\sqrt3}{2})\). So the zig-zag is as long as going from \(c\) back up to the top of the hexagon and down again to \(t\). In total this is ≈ 5, while \(|st|\le 1\). The paper bounds the total from below by \(5-72\delta\).</p>
+      </div>
+      <div class="statgrid" aria-live="polite"> 
+        <div class="kv"><span>points \(2k+6\)</span><b id="lb-n">—</b></div>
+        <div class="kv"><span>zig-zag steps \(k\)</span><b id="lb-k">—</b></div>
+        <div class="kv"><span>\(d_G(s,t)\)</span><b id="lb-len">—</b></div>
+        <div class="kv"><span>\(|st|\)</span><b id="lb-st">—</b></div>
+        <div class="kv big"><span>ratio</span><b id="lb-ratio">—</b></div>
+        <div class="kv"><span>paper's bound \(5-72\delta\)</span><b id="lb-bound">—</b></div>
+        <div class="kv"><span>zig-zag \(p^0\to t\) (measured)</span><b id="lb-zz">—</b></div>
+        <div class="kv"><span>unfolded \(|p^0r|+|rp^k|\)</span><b id="lb-unf">—</b></div>  
+        <div class="kv wide"><span>shortest path is the one of the paper?</span><b id="lb-path">—</b></div>
+      </div>
+    </div>
+
+    <figure id="lb" class="fig wide">
+      <div class="toolbar">
+        <label class="slider">δ <input id="lb-delta" type="range" min="-2.7" max="-1.2" step="0.01"><output id="lb-delta-out"></output></label>
+        <label><input id="lb-all" type="checkbox"> all Θ<sub>6</sub> edges</label>
+        <label><input id="lb-unfold" type="checkbox" checked> unfolding via r</label>
+        <span class="sep"></span>
+        <button class="btn sm" id="lb-walk">▶ Walk the path</button>
+        <button class="btn sm ghost" id="lb-zoom">Zoom on the zig-zag</button>
+        <button class="btn sm ghost" id="lb-zoomin" aria-label="Zoom in">+</button>
+        <button class="btn sm ghost" id="lb-zoomout" aria-label="Zoom out">−</button>
+        <button class="btn sm ghost" id="lb-fit">Fit</button>
+     </div>
+      <canvas class="cv cv-wide" aria-label="Lower bound construction"></canvas>
+      <figcaption><span id="lb-odo" class="mono">Drag to pan, ctrl + wheel to zoom.</span> The dashed hexagon is the unit ball of \(\|\cdot\|_{97}\) around \(t\). The red dashed path \(p^0\to r\to p^k\) is the unfolding of the zig-zag. The \(q^i\) are drawn in orange.</figcaption>
+    </figure>
+
+    <div class="two">
+      <figure id="lb-chart" class="fig chart">
+        <div class="chart-head"><h4>Measured ratio vs δ</h4><button class="btn sm">Compute (10 point sets, up to 2 700 points)</button></div>
+        <div class="chart-box"><svg role="img" aria-label="Measured spanning ratio of the Lemma 1 point set against delta, with the paper's bound 5 minus 72 delta"></svg><div class="tip" hidden></div></div>
+        <div class="legend"><span><i class="sw sw-s1"></i>measured \(d_G(s,t)/|st|\)</span><span><i class="sw sw-s2"></i>paper's lower bound \(5-72\delta\)</span><span><i class="sw sw-ref"></i>5</span></div>
+        <details><summary>Table view</summary><table class="tbl"><thead><tr><th>δ</th><th>n</th><th>ratio</th><th>5 − 72δ</th><th>(5 − ratio)/δ</th></tr></thead><tbody></tbody></table></details>
+      </figure>
+      <div class="prose">
+        <h3>What the numbers say</h3>
+        <p>For every δ I tried, Dijkstra finds exactly the path described in the paper, and the ratio is above \(5-72\delta\). The measured gap is about \(5-\text{ratio}\approx 18\,\delta\) (for example 4.9818 at δ = 0.001, with 5 962 points). The constant 72 of the paper is therefore not tight, which is expected since each length is bounded separately.</p>
+        <p>The number of points grows like \(1/\delta\): the zig-zag steps shrink geometrically towards \(t\), and the construction stops when \(p^k\) gets closer to \(t\) than δ. Approaching 5 is expensive. By contrast, 5 points (\(s,a,b,c,t\)) already give a ratio close to 4 (see the game below).</p>
+        <p class="callout"><b>Implementation note: a probable typo in the paper.</b> The full version [<a href="#r2">2</a>] (p. 5) defines the points \(q^i\) by \(\|q^{i-1}q^i\|_2/\|tq^i\|_2 = \|q^0c\|_2/\|tc\|_2\). Built literally, this point set has the wrong shortest path: it jumps \(p^0\to p^1\to\cdots\), skips about half of the points, and the ratio stays below 4 (3.95 at \(\delta=0.005\)). With the denominator \(\|tq^{i-1}\|_2\) instead, \((q^{i-1},p^i,q^i)\) is a scaled copy of \((c,p^0,q^0)\), the formula also holds for \(i=0\) (with \(q^{-1}=c\)), and the shortest path is exactly the one of Figure 2. This page uses that version, and my test suite compares both. Still to be confirmed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- game -->
+<section id="play" class="band alt">
+  <div class="wrap">
+      <h2><span class="secno">4</span>Stretch it: find the worst point set</h2>
+    <div class="game" id="game">
+      <div>
+        <canvas class="cv cv-game" aria-label="Game canvas: drag the points to maximise the spanning ratio"></canvas>  
+      </div>
+      <aside class="panel">
+        <p>Drag the points to make the directed spanning ratio as large as possible. The worst pair and its shortest path are shown live. No set can go above 5. How close can you get with few points?</p>  
+        <label class="slider">points <input id="g-n" type="range" min="4" max="10" value="6"><output id="g-n-out">6</output></label>
+        <div class="bigstat"><span>your ratio</span><b id="g-score">—</b><div class="meter" id="g-meter"><i></i><em style="left:25%">2</em><em style="left:75%">4</em><em style="left:100%">5</em></div></div>
+        <div class="kv"><span>level</span><b id="g-tier">—</b></div>
+        <div class="kv"><span>your best for this n (this browser)</span><b id="g-best">—</b></div>
+        <div class="btnrow">
+          <button class="btn sm" id="g-reset">New random set</button>
+          <button class="btn sm ghost" id="g-loadbest">Load my best</button>
+        </div>
+        <button class="btn sm primary" id="g-search">Let the computer try (annealing)</button>
+        <p class="mono small" id="g-progress"></p>
+      </aside>
+    </div>
+    <div class="two">
+      <div class="prose">
+        <h3>First results of the random search</h3>
+        <p>I wrote a simulated-annealing search: it moves one point at a time, and accepts worse moves with a probability that decreases over time. Moves that bring two points within \(10^{-3}\) of each other, or within \(10^{-3}\) rad of a cone boundary, are rejected. Without this rule, the search exploits degenerate configurations (points on the same horizontal line) and reports meaningless ratios in the thousands. The best sets were checked with both edge definitions. Best ratio found, 8 restarts × 6 000 steps:</p>
+      </div>
+      <table class="tbl results">
+        <thead><tr><th>n</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>10</th><th>12</th><th>16</th></tr></thead>
+        <tbody><tr><th>best ratio</th><td>2.982</td><td>3.918</td><td>3.916</td><td>3.903</td><td>3.889</td><td>3.875</td><td>3.877</td><td>3.860</td></tr></tbody>
+        <caption>Preliminary. The values for n ≥ 6 are below n = 5, so the search clearly gets stuck in local optima for larger n. For n = 5 it is also below the 3.966 of the hand-made set \(s,a,b,c,t\). Improving it (restarts from the Lemma 1 structure, more iterations) is on the to-do list.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- proof --> 
+<section id="proof" class="band">
+  <div class="wrap">
+    <h2><span class="secno">5</span>Why never more than 5: a map of the proof</h2>
+   <div class="two">
+      <div class="prose">
+        <p>The paper proves something stronger than \(d(s,t)\le 5|st|\):</p>
+        <p class="thm"><b>Theorem 1.</b> For every \(P\) in general position and all \(s,t\in P\): \(d_{\Theta_6}(s,t)\le 5\|st\|_{98}\le 5|st|\).</p>
+       <p>Here \(\|\cdot\|_{97}\) is the hexagonal norm whose unit ball is the regular hexagon with corners \((\pm1,0)\) (it defines Θ<sub>6</sub>), and \(\|\cdot\|_{98}\) is the "tipped" hexagonal norm whose unit ball has corners \((0,\pm 2/\sqrt3)\). We have \(\|\cdot\|_{98}\le\|\cdot\|_2\le\|\cdot\|_{97}\).</p>
+        <ol class="steps">
+          <li><b>Induction on \(\|st\|_{97}\).</b> The closest pair is a direct edge. Normalise \(\|st\|_{97}=1\) and, by symmetry, \(s\in C_t^0\) to the right of the bisector \(B_t^0\).</li>
+          <li><b>Lemma 2.</b> Let \(y_0\) be the side of the triangle \(T=C_t^0\cap C_s^2\). Then \(1=\|st\|_{98}+\tfrac12 y_0\), so the target is \(5\|st\|_{98}=5-2.5\,y_0\). <span class="tag ok">checked numerically</span></li>
+          <li><b>Empty region (Def. 1, Lemma 4).</b> Let \(p=B_s^3\cap B_t^1\) and \(q=B_s^4\cap B_t^0\), and let \(R\) be the parallelogram \(sqtp\) together with \(\nabla_s^p\) and \(\nabla_s^q\). If \(d(s,t)&gt;5\|st\|_{98}\), then no point is inside \(R\), the edge \(sy\) of \(C_s^3\) ends in \(C_t^1\), and \(2.5y_0+3.5y_1&lt;1\), where \(y_1=1-\|\nabla_s^y\|\). <span class="tag ok">figure</span></li>
+          <li><b>Greedy paths and spirals.</b> The greedy path towards \(t\) may spiral, so the paper follows it only until its first edge crossing a boundary ray of \(t\). An edge that crosses both \(B_t^0\) and \(B_t^1\) ends at least twice as close to \(t\) as it is long (Lemma 9). <span class="tag todo">figure planned</span></li>
+          <li><b>Two candidate paths.</b> The <em>y-path</em> goes counter-clockwise around \(t\), the <em>x-path</em> clockwise. Their lengths give a system of linear inequalities in \(y_0, y_1, \dots\) <span class="tag todo">to explain</span></li>
+          <li><b>Linear programming.</b> Under two assumptions there are \(2\times2\times5=20\) cases. In 16 of them, linear programming shows that the system has no solution. The other 4 need a third, shortcut path. The cases where the assumptions fail are handled in the full version. <span class="tag todo">reproduce one LP in the page</span></li>
+        </ol>
+      </div>
+      <figure id="proof-fig" class="fig">
+        <canvas class="cv cv-square" aria-label="Proof figure: region R, triangle T and the window for y"></canvas>
+        <figcaption>Drag \(s\) along the bottom side of the unit hexagon (\(\|st\|_{97}=1\)), and drag \(y\). <span class="key key-r"></span> region \(R\) · <span class="key key-t"></span> triangle \(T\), side \(y_0\) · <span class="key key-w"></span> the only places where the edge \(sy\) could end in a counterexample (Lemma 4).</figcaption>
+        <div class="statgrid tight">
+          <div class="kv"><span>\(|st|\)</span><b id="pf-st2">—</b></div>
+          <div class="kv"><span>\(\|st\|_{98}\)</span><b id="pf-st98">—</b></div>
+          <div class="kv"><span>\(y_0\)</span><b id="pf-y0">—</b></div>
+          <div class="kv"><span>\(5\|st\|_{98}\)</span><b id="pf-bound">—</b></div>
+          <div class="kv"><span>\(5-2.5y_0\)</span><b id="pf-bound2">—</b></div>
+          <div class="kv"><span>\(y_1=1-\|\nabla_s^y\|\)</span><b id="pf-y1">—</b></div>
+          <div class="kv"><span>\(2.5y_0+3.5y_1\)</span><b id="pf-lhs">—</b></div>
+          <div class="kv wide"><span>status of \(y\)</span><b id="pf-status">—</b></div>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- checks -->
+<section id="checks-sec" class="band alt">
+  <div class="wrap">
+      <h2><span class="secno">6</span>Checks you can run</h2>
+    <p class="intro">Every claim in the lab rests on the code being correct. Following my proposal, these tests ran before the visual parts were built. The full suite runs offline (300–400 random sets per test). A lighter version runs here, in your browser.</p>
+    <div id="checks">
+        <button class="btn primary">Run the checks</button>
+      <table class="tbl checks"><thead><tr><th></th><th>Check</th><th>Result</th></tr></thead><tbody></tbody></table>
+    </div>
+    </div>
+</section>
+
+<!-- status -->
+<section id="status" class="band">
+  <div class="wrap">
+    <h2><span class="secno">7</span>What is done, what comes next</h2>
+    <div class="status">
+      <div>
+        <h4><span class="dot ok"></span>Done in this preliminary version</h4>
+        <ul>
+          <li>Core library: Θ<sub>6</sub> by both definitions, hexagonal norms, exact spanning ratio, greedy routing</li>
+          <li>Interactive lab with the worst pair, routing animation and JSON import/export</li>
+          <li>Lemma 1 construction rebuilt and checked numerically, with the unfolding view and the ratio-vs-δ chart</li>  
+          <li>Game and a first simulated-annealing search</li>
+          <li>Proof figure for steps 1–3 (normalisation, Lemma 2, empty region R, Lemma 4 window)</li>
+          <li>Test suite (Node and in the browser)</li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="dot todo"></span>Before 25 November</h4>
+        <ul>
+          <li>Confirm the probable typo in the \(q^i\) formula of Lemma 1 (see §3)</li>
+          <li>Add Lemmas 3 and 9 (now checked in Node with the exact statements of the paper) to the in-browser checks and to the proof figures</li>
+          <li>The 4 − ε construction and a spiralling greedy example from [<a href="#r3">3</a>]</li>
+          <li>Figures for steps 4–6, with one of the linear programs solved in the page</li>
+          <li>A better search for bad point sets (larger n, structured starts)</li>
+          <li>Short animated video, full bibliography and literature review</li>
+         </ul>
+      </div>
+      <div class="ask">
+        <h4>Feedback I would love</h4>
+        <ul>
+          <li>Is the lab understandable without reading the text first?</li>
+          <li>Which step of the proof would you most like to see as a figure?</li>
+          <li>Can you get above 4 with 5 or 6 points? I do not know if 4 is the limit for 5 points. Tell me your best ratio (or export the JSON).</li>
+        </ul>
+      </div>
+    </div>
+ </div>
+</section>
+  
+<section id="refs" class="band alt">
+  <div class="wrap narrow">
+    <h2>References</h2>
+     <ol class="refs">
+      <li id="r1">Prosenjit Bose, Jean-Lou De Carufel, John Stuart, and Darryl Hill. The spanning ratio of the directed Θ<sub>6</sub>-graph is 5. In <i>Proc. 42nd International Symposium on Computational Geometry (SoCG 2026)</i>, volume 367 of LIPIcs, pages 20:1–20:18. Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 2026. <a href="https://doi.org/10.4230/LIPIcs.SoCG.2026.20">doi:10.4230/LIPIcs.SoCG.2026.20</a>.</li>
+      <li id="r2">Prosenjit Bose, Jean-Lou De Carufel, Darryl Hill, and John Stuart. The spanning ratio of the directed Θ<sub>6</sub>-graph is 5. Full version, March 2026. <a href="https://arxiv.org/abs/2603.09048">arXiv:2603.09048</a>.</li>
+      <li id="r3">Hugo A. Akitaya, Ahmad Biniaz, and Prosenjit Bose. On the spanning and routing ratios of the directed Θ<sub>6</sub>-graph. <i>Computational Geometry: Theory and Applications</i>, 105–106:101881, 2022. <a href="https://doi.org/10.1016/j.comgeo.2022.101881">doi:10.1016/j.comgeo.2022.101881</a>.</li>
+      <li id="r4">Prosenjit Bose, Jean-Lou De Carufel, Pat Morin, André van Renssen, and Sander Verdonschot. Towards tight bounds on theta-graphs: More is not always better. <i>Theoretical Computer Science</i>, 616:70–93, 2016. <a href="https://doi.org/10.1016/j.tcs.2015.12.017">doi:10.1016/j.tcs.2015.12.017</a>.</li>
+      <li id="r5">L. Paul Chew. There are planar graphs almost as good as the complete graph. <i>Journal of Computer and System Sciences</i>, 39(2):205–219, 1989. <a href="https://doi.org/10.1016/0022-0000(89)90044-5">doi:10.1016/0022-0000(89)90044-5</a>.</li>
+      <li id="r6">Kenneth L. Clarkson. Approximation algorithms for shortest path motion planning. In <i>Proc. 19th Annual ACM Symposium on Theory of Computing (STOC 1987)</i>, pages 56–65. ACM, 1987. <a href="https://doi.org/10.1145/28395.28402">doi:10.1145/28395.28402</a>.</li>
+      <li id="r7">J. Mark Keil and Carl A. Gutwin. Classes of graphs which approximate the complete Euclidean graph. <i>Discrete &amp; Computational Geometry</i>, 7(1):13–28, 1992. <a href="https://doi.org/10.1007/BF02187821">doi:10.1007/BF02187821</a>.</li>
+      <li id="r8">Giri Narasimhan and Michiel Smid. <i>Geometric Spanner Networks</i>. Cambridge University Press, 2007. <a href="https://doi.org/10.1017/CBO9780511546884">doi:10.1017/CBO9780511546884</a>.</li>
+      <li id="r9">Jim Ruppert and Raimund Seidel. Approximating the d-dimensional complete Euclidean graph. In <i>Proc. 3rd Canadian Conference on Computational Geometry (CCCG 1991)</i>, pages 207–210, 1991.</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <span>INFO-F420 · Université libre de Bruxelles · 2026–27</span>
+    <span>Plain HTML, CSS and JavaScript, no build step. Maths rendered with KaTeX.</span>
+  </div>
+</footer>
+</body>
+</html>
