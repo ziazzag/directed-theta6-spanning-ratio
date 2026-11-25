@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Directed Θ6 Spanner</title>
-<meta name="description" content="Interactive companion to 'The Spanning Ratio of the Directed Θ6-Graph Is 5' (Bose, De Carufel, Stuart, Hill, SoCG 2026). INFO-F420 project, preliminary version.">
+<meta name="description" content="Interactive companion to 'The Spanning Ratio of the Directed Θ6-Graph Is 5' (Bose, De Carufel, Stuart, Hill, SoCG 2026). INFO-F420 project (ULB).">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28 9v14l-12 7-12-7V9z' fill='%2317181c'/%3E%3Ctext x='16' y='21' font-size='13' text-anchor='middle' fill='white' font-family='serif'%3E%CE%98%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +19,8 @@
 <script defer src="js/figures.js"></script>
 <script defer src="js/worst.js"></script>
 <script defer src="js/checks.js"></script>
+<script defer src="js/lp.js"></script>
+<script defer src="js/more.js"></script>
 <script defer src="js/main.js"></script>
 </head>
 <body>
@@ -31,7 +33,8 @@
     <a href="#play">Game</a>
     <a href="#proof">Proof</a>
     <a href="#checks-sec">Checks</a>
-    <a href="#status">Status</a>
+    <a href="#related">Related work</a>
+    <a href="#status">Summary</a>
     <a href="#refs">References</a>
   </nav>
   <button id="theme-toggle" class="iconbtn" type="button" aria-label="Toggle theme">☾</button>
@@ -44,17 +47,17 @@
   <canvas id="hero-canvas" aria-hidden="true"></canvas>
   <div class="hero-fade" aria-hidden="true"></div>
   <div class="hero-inner">
-      <p class="eyebrow">INFO-F420 Computational Geometry · ULB · <span class="pill">Preliminary version · 11 Nov 2026</span></p>
+      <p class="eyebrow">INFO-F420 Computational Geometry · ULB · November 2026</p>
     <h1>Follow the arrows,<br>and you may walk <em>five</em> times too far.</h1>
     <p class="lede">An interactive companion to <cite>The Spanning Ratio of the Directed Θ<sub>6</sub>-Graph Is 5</cite> by Bose, De Carufel, Stuart and Hill (SoCG 2026) [<a href="#r1">1</a>]. Build Θ<sub>6</sub>-graphs, watch greedy routing, rebuild the worst case of the paper and check it numerically.</p>
-    <p class="byline">Zachary Iazzag · solo project</p>
+    <p class="byline">Zachary Iazzag · solo project · <a href="https://github.com/ziazzag/directed-theta6-spanning-ratio">all the code on GitHub</a></p>
     <div class="cta">
       <a class="btn primary" href="#lab">Open the lab</a>
       <a class="btn" href="#worst">See the 5 − ε construction</a>
     </div>
     <p class="numbers-cap">Worst-case spanning ratio: how many times longer than the straight line the shortest path in the graph can be.</p>
     <div class="numbers">
-      <div><b>2</b><span>undirected Θ<sub>6</sub> (every edge usable both ways), tight bound [<a href="#r4">4</a>, <a href="#r5">5</a>]</span></div>
+      <div><b>2</b><span>undirected Θ<sub>6</sub> (every edge usable both ways), tight bound [<a href="#r4">4</a>, <a href="#r5">5</a>, <a href="#r11">11</a>]</span></div>
       <div><b>4 to 7</b><span>directed Θ<sub>6</sub>, best bounds known before this paper [<a href="#r3">3</a>]</span></div>
       <div class="hl"><b>5</b><span>directed Θ<sub>6</sub>, exact value proved in this paper [<a href="#r1">1</a>]</span></div>
     </div>
@@ -62,17 +65,26 @@
   </div>
 </section>
 
+<!-- video -->
+<section id="video" class="band" hidden>
+  <div class="wrap narrow">
+    <h2>The idea in short</h2>
+    <video id="intro-video" controls preload="metadata" playsinline src="media/video.mp4"></video>
+    <p class="vidcap">A short animated video: the problem, the six cones and the 5 − ε construction.</p>
+  </div>
+</section>
+
 <section id="definition" class="band">
   <div class="wrap two">
     <div class="prose">
     <h2><span class="secno">1</span>Six cones, one arrow per cone</h2>
-      <p>Think of a road network between cities. A road between every pair of cities is far too expensive, so we keep only a few roads, but we still want every trip to be short: never much longer than the straight line. A graph like this is called a <b>spanner</b>, and its worst detour factor is its <b>spanning ratio</b>. Θ-graphs are one of the simplest ways to build one: each city only builds a road to its nearest neighbour in a few directions.</p>
-      <p>Now make every road one-way. You can still leave a city in every direction, but the road back may not exist, so a trip may have to go around. This is the <em>directed</em> Θ<sub>6</sub>-graph, and the paper shows that the detour can get as bad as 5 times the straight line, but never worse.</p>
-      <p>Let \(P\) be a finite set of points in the plane. The three lines of slope \(-\sqrt3\), \(0\) and \(\sqrt3\) through a point \(u\) cut the plane into six cones of 60°, numbered \(C_u^0,\dots,C_u^5\) counter-clockwise, starting with \(C_u^0\) directly below \(u\). In each non-empty cone, \(u\) gets <b>one outgoing edge</b>: to the point whose orthogonal projection on the bisector of the cone is closest to \(u\). Θ-graphs were introduced independently by Clarkson [<a href="#r6">6</a>] and by Keil and Gutwin [<a href="#r7">7</a>].</p>
-      <p>Equivalently, \(u\to v\) is an edge exactly when the <b>canonical triangle</b> \(\nabla_u^v\) (the equilateral triangle with a corner at \(u\), sides parallel to the cone boundaries, and \(v\) on the opposite side) contains no point of \(P\) in its interior. The far side of \(\nabla_u^v\) is exactly the level line of the projection, so the two definitions are the same. My code builds the graph both ways and checks that they agree (<a href="#checks-sec">§6</a>).</p>
-      <p>Every vertex has out-degree at most 6, but in-degree can be large. The <b>spanning ratio</b> is</p>
+      <p>Think of a road network between cities. A road between every pair of cities is far too expensive. So we keep only a few roads. But we still want every trip to be short: never much longer than the straight line. A graph like this is called a <b>spanner</b>. Its worst detour factor is its <b>spanning ratio</b>. Θ-graphs are one of the simplest ways to build one: each city only builds a road to its nearest neighbour in a few directions.</p>
+      <p>Now make every road one-way. You can still leave a city in every direction. But the road back may not exist and a trip may have to go around. This is the <em>directed</em> Θ<sub>6</sub>-graph. The paper shows that the detour can get as bad as 5 times the straight line but never worse.</p>
+      <p>Let \(P\) be a finite set of points in the plane. The three lines of slope \(-\sqrt3\), \(0\) and \(\sqrt3\) through a point \(u\) cut the plane into six cones of 60°, numbered \(C_u^0,\dots,C_u^5\) counter-clockwise, starting with \(C_u^0\) directly below \(u\). In each non-empty cone, \(u\) gets <b>one outgoing edge</b>: to the point whose orthogonal projection on the bisector of the cone is closest to \(u\). Θ-graphs were introduced by Clarkson [<a href="#r6">6</a>] and by Keil and Gutwin [<a href="#r7">7</a>].</p>
+      <p>Equivalently, \(u\to v\) is an edge exactly when the <b>canonical triangle</b> \(\nabla_u^v\) (the equilateral triangle with a corner at \(u\), sides parallel to the cone boundaries and \(v\) on the opposite side) contains no point of \(P\) in its interior. The far side of \(\nabla_u^v\) is exactly the level line of the projection. So the two definitions are the same. My code builds the graph both ways and checks that they agree (<a href="#checks-sec">§6</a>).</p>
+      <p>Every vertex has out-degree at most 6 but its in-degree can be large. The <b>spanning ratio</b> is</p>
       $$\rho(G) = \max_{s\neq t\in P} \frac{d_G(s,t)}{|st|},$$
-      <p>where \(d_G\) is the length of a shortest <em>directed</em> path. As in the paper, I assume general position: no two points on a line of slope \(0\) or \(\pm\sqrt3\), so that no point lies on a cone boundary.</p>
+      <p>where \(d_G\) is the length of a shortest <em>directed</em> path. As in the paper, I assume general position: no two points on a line of slope \(0\) or \(\pm\sqrt3\). So no point lies on a cone boundary.</p>
     </div>
     <figure id="def-fig" class="fig"> 
       <div class="seg" role="group" aria-label="Definition">
@@ -80,7 +92,7 @@
         <button data-defmode="tri" aria-pressed="false">Empty canonical triangle</button>
       </div>
       <canvas class="cv cv-square" aria-label="The six cones around u and its outgoing edges. Drag any point."></canvas>
-      <figcaption>Drag \(u\) or any other point. Left: each point is projected on the bisector of its cone, and the closest projection wins. Right: the triangles \(\nabla_u^v\) of the winners are empty. Both views always give the same arrows.</figcaption> 
+      <figcaption>Drag \(u\) or any other point. Left: each point is projected on the bisector of its cone and the closest projection wins. Right: the triangles \(\nabla_u^v\) of the winners are empty. Both views always give the same arrows.</figcaption> 
     </figure>
   </div>
 </section>
@@ -139,9 +151,34 @@
       </aside>
     </div>
     <div class="notes three">
-      <div><h4>How it is computed</h4><p>Brute force: for each \(u\), the closest projection in each cone, \(O(n^2)\). The exact spanning ratio runs Dijkstra from every vertex on the \(\le 6n\) edges, \(O(n^2\log n)\). This is instant for the sizes used here, so I did not implement the \(O(n\log n)\) sweep of [<a href="#r8">8</a>].</p></div>
-      <div><h4>Greedy routing</h4><p>From the current vertex \(a\), take the out-edge in the cone of \(a\) that contains \(t\). This edge always exists, since \(t\) itself is in that cone. In Θ<sub>6</sub> the greedy path can spiral around \(t\) many times while making little progress [<a href="#r2">2</a>, <a href="#r3">3</a>]. Bounded greedy routing is only known for \(k\ge 7\) cones [<a href="#r9">9</a>].</p></div>
-      <div><h4>Things to try</h4><p>Load <b>5 points ≈ 4</b>: the points \(s,a,b,c,t\) of the construction below, without the zig-zag, already give 3.966. The ratio tends to 4 as δ → 0. Switch to undirected and see the ratio fall under 2. Compare the greedy path and the shortest path on random sets: they often differ.</p></div>
+      <div><h4>How it is computed</h4><p>Brute force: for each \(u\), the closest projection in each cone, \(O(n^2)\). The exact spanning ratio runs Dijkstra from every vertex on the \(\le 6n\) edges, \(O(n^2\log n)\). This is instant for the sizes used here. That is why I did not implement the \(O(n\log n)\) sweep of [<a href="#r8">8</a>].</p></div>
+      <div><h4>Greedy routing</h4><p>From the current vertex \(a\), take the out-edge in the cone of \(a\) that contains \(t\). This edge always exists because \(t\) itself is in that cone. In Θ<sub>6</sub> the greedy path can spiral around \(t\) many times while making little progress [<a href="#r2">2</a>, <a href="#r3">3</a>] (see <a href="#spiral">Greedy routing can spiral</a>). Bounded greedy routing is only known for \(k\ge 7\) cones [<a href="#r9">9</a>].</p></div>
+      <div><h4>Things to try</h4><p>Load <b>5 points ≈ 4</b>: the points \(s,a,b,c,t\) of the construction in <a href="#worst">§3</a>, without the zig-zag, already give 3.966. The ratio tends to 4 as δ → 0. Switch to undirected and see the ratio fall under 2. Compare the greedy path and the shortest path on random sets: they often differ.</p></div>
+    </div>
+
+    <div class="two">
+      <div class="prose">
+        <h3 id="spiral">Greedy routing can spiral</h3>
+        <p>Greedy routing looks like the natural way to route in Θ<sub>6</sub> but it can spiral around \(t\) with a path of unbounded length ([<a href="#r3">3</a>], p. 4 and Fig. 2, taken from an earlier paper; see also [<a href="#r2">2</a>, p. 3]). I built my own example with the code. The points \(a_0=s, a_1, a_2,\dots\) lie on a "hexagonal spiral" around \(t\): \(a_{k+1}\) is \(a_k\) turned by 60° around \(t\) and moved closer to \(t\) by a factor \(\rho\).</p>
+        <p>Why it works: seen from \(a_k\), the point \(t\) lies on the far side of the canonical triangle \(\nabla_{a_k}^t\), close to one end. The point \(a_{k+1}\) lies inside the triangle near the other end. So \(a_{k+1}\) has a smaller projection than \(t\) and greedy goes there. Then the same picture repeats, turned by 60°.</p>
+        <p>With 25 points greedy makes 4 full turns before reaching \(t\). In this example the shortest path is the same spiral (I checked it with Dijkstra, see §6). Its length still stays small: each turn multiplies the distance to \(t\) by \(\rho^6\). The lengths form a geometric series (the same kind of argument as for the zig-zag in §3). For \(\rho\) above about 0.73 (with the starting angle I use) it stops working: \(a_{k+6}\), one turn later, falls inside \(\nabla_{a_k}^t\) with a smaller projection than \(a_{k+1}\). Then greedy jumps directly one turn inwards.</p>
+      </div>
+      <figure id="spiral-fig" class="fig">
+        <div class="toolbar">
+          <label class="slider">ρ <input id="sp-rho" type="range" min="0.5" max="0.73" step="0.01"><output id="sp-rho-out"></output></label>
+          <button class="btn sm" id="sp-walk">▶ Follow greedy</button>
+          <button class="btn sm ghost" id="sp-reset">Fit</button>
+          <span class="mono small" id="sp-zoom"></span>
+        </div>
+        <canvas class="cv cv-square" aria-label="Greedy routing spiralling around t"></canvas>
+        <div class="statgrid tight">
+          <div class="kv"><span>turns around \(t\)</span><b id="sp-turns">—</b></div>
+          <div class="kv"><span>points visited</span><b id="sp-visited">—</b></div>
+          <div class="kv"><span>greedy length / \(|st|\)</span><b id="sp-greedy">—</b></div>
+          <div class="kv"><span>shortest path / \(|st|\)</span><b id="sp-short">—</b></div>
+        </div>
+        <figcaption>Edge colour = cone of its tail. During the walk the view zooms on \(t\) and the dashed triangle is \(\nabla_a^t\) of the current point. Ctrl + wheel to zoom, drag to pan.</figcaption>
+      </figure>
     </div>
  </div>
 </section>
@@ -152,11 +189,11 @@
     <h2><span class="secno">3</span>Rebuilding the 5 − ε construction</h2>
     <div class="two">
       <div class="prose"> 
-        <p><b>Lemma 1</b> of the paper: for every \(\varepsilon&gt;0\) there is a point set whose directed Θ<sub>6</sub>-graph has spanning ratio at least \(5-\varepsilon\). Fix \(0&lt;\delta&lt;\varepsilon/72\), \(t=(0,0)\), and put \(s, a, b, c\) close to four corners of the unit hexagon around \(t\):</p>
+        <p><b>Lemma 1</b> of the paper: for every \(\varepsilon&gt;0\) there is a point set whose directed Θ<sub>6</sub>-graph has spanning ratio at least \(5-\varepsilon\). Fix \(0&lt;\delta&lt;\varepsilon/72\), \(t=(0,0)\) and put \(s, a, b, c\) close to four corners of the unit hexagon around \(t\):</p>
         $$\begin{aligned} s&=(-1,0)+\delta(1,-1), & a&=(-\tfrac12,\tfrac{\sqrt3}{2})+\delta(1,-2),\\ b&=(\tfrac12,\tfrac{\sqrt3}{2})+\delta(-2,-3), & c&=(1,0)+\delta(-6,1). \end{aligned}$$
-        <p>Then two almost parallel lines through \(t\) are added: the points \(p^0,p^1,\dots,p^k\) on the line of slope \(-\delta\) and \(q^0,\dots,q^{k-1}\) on the segment \(ct\). Consecutive points are linked by segments of slope \(\pm(\sqrt3-\delta)\), so they form a zig-zag that gets smaller towards \(t\). From each vertex of the path, all later vertices are in the same cone. So the only way from \(s\) to \(t\) is</p>
+        <p>Then two almost parallel lines through \(t\) are added: the points \(p^0,p^1,\dots,p^k\) on the line of slope \(-\delta\) and \(q^0,\dots,q^{k-1}\) on the segment \(ct\). Consecutive points are linked by segments of slope \(\pm(\sqrt3-\delta)\). They form a zig-zag that gets smaller towards \(t\). From each vertex of the path, all later vertices are in the same cone. So the shortest path from \(s\) to \(t\) is</p>
         <p class="path">s → a → b → c → p⁰ → q⁰ → p¹ → q¹ → ⋯ → pᵏ → t.</p>
-        <p>The first three edges have length ≈ 1 each. <b>Unfolding</b> the zig-zag gives the key step: its length equals \(|p^0r|+|rp^k|\), where \(r\approx(\tfrac12,\tfrac{\sqrt3}{2})\). So the zig-zag is as long as going from \(c\) back up to the top of the hexagon and down again to \(t\). In total this is ≈ 5, while \(|st|\le 1\). The paper bounds the total from below by \(5-72\delta\).</p>
+        <p>The first three edges have length ≈ 1 each. <b>Unfolding</b> the zig-zag gives the key step: its length equals \(|p^0r|+|rp^k|\), where \(r\) is the point where the line of slope \(\sqrt3-\delta\) through \(p^k\) meets the line of slope \(\delta-\sqrt3\) through \(p^0\). When δ → 0, \(r\) tends to \((\tfrac12,\tfrac{\sqrt3}{2})\). So the zig-zag is as long as going from \(c\) back up to the top of the hexagon and down again to \(t\). In total this is ≈ 5 and \(|st|\le 1\). The paper bounds the total from below by \(5-72\delta\).</p>
       </div>
       <div class="statgrid" aria-live="polite"> 
         <div class="kv"><span>points \(2k+6\)</span><b id="lb-n">—</b></div>
@@ -196,10 +233,33 @@
       </figure>
       <div class="prose">
         <h3>What the numbers say</h3>
-        <p>For every δ I tried, Dijkstra finds exactly the path described in the paper, and the ratio is above \(5-72\delta\). The measured gap is about \(5-\text{ratio}\approx 18\,\delta\) (for example 4.9818 at δ = 0.001, with 5 962 points). The constant 72 of the paper is therefore not tight, which is expected since each length is bounded separately.</p>
-        <p>The number of points grows like \(1/\delta\): the zig-zag steps shrink geometrically towards \(t\), and the construction stops when \(p^k\) gets closer to \(t\) than δ. Approaching 5 is expensive. By contrast, 5 points (\(s,a,b,c,t\)) already give a ratio close to 4 (see the game below).</p>
-        <p class="callout"><b>Implementation note: a probable typo in the paper.</b> The full version [<a href="#r2">2</a>] (p. 5) defines the points \(q^i\) by \(\|q^{i-1}q^i\|_2/\|tq^i\|_2 = \|q^0c\|_2/\|tc\|_2\). Built literally, this point set has the wrong shortest path: it jumps \(p^0\to p^1\to\cdots\), skips about half of the points, and the ratio stays below 4 (3.95 at \(\delta=0.005\)). With the denominator \(\|tq^{i-1}\|_2\) instead, \((q^{i-1},p^i,q^i)\) is a scaled copy of \((c,p^0,q^0)\), the formula also holds for \(i=0\) (with \(q^{-1}=c\)), and the shortest path is exactly the one of Figure 2. This page uses that version, and my test suite compares both. Still to be confirmed.</p>
+        <p>For every δ I tried, Dijkstra finds exactly the path described in the paper and the ratio is above \(5-72\delta\). The measured gap is about \(5-\text{ratio}\approx 18\,\delta\) (for example 4.9818 at δ = 0.001, with 5 962 points). The constant 72 of the paper is therefore not tight. This is expected because each length is bounded separately.</p>
+        <p>The number of points grows like \(1/\delta\): the zig-zag steps shrink geometrically towards \(t\) and the construction stops when \(p^k\) gets closer to \(t\) than δ. Approaching 5 is expensive. By contrast, 5 points (\(s,a,b,c,t\)) already give a ratio close to 4 (see <a href="#four">the 5-point example</a> just after).</p>
+        <p class="callout"><b>Implementation note: a probable typo in the paper.</b> Both the full version [<a href="#r2">2</a>] and the SoCG version [<a href="#r1">1</a>] (p. 5 in both) define the points \(q^i\) by \(\|q^{i-1}q^i\|_2/\|tq^i\|_2 = \|q^0c\|_2/\|tc\|_2\). Built literally, this point set has the wrong shortest path: it jumps \(p^0\to p^1\to\cdots\), skips about half of the points and the ratio stays below 4 (3.95 at \(\delta=0.005\)). With the denominator \(\|tq^{i-1}\|_2\) instead, \((q^{i-1},p^i,q^i)\) is a scaled copy of \((c,p^0,q^0)\), the formula also holds for \(i=0\) (with \(q^{-1}=c\)) and the shortest path is exactly the one of Figure 2 of the paper. This page uses that version. My test suite compares both. With this index the construction works. So I think it is only a typo. I have not asked the authors.</p>
       </div>
+    </div>
+
+    <div class="two">
+      <div class="prose">
+        <h3 id="four">A smaller example: 4 − ε with 5 points</h3>
+        <p>The first construction with ratio \(4-\varepsilon\) is in [<a href="#r3">3</a>] (Theorem 25): 8 points placed near the corners and the center of a hexagon. A simpler one comes for free from Lemma 1: keep only \(s,a,b,c,t\). The shortest path from \(s\) to \(t\) is then \(s\to a\to b\to c\to t\), four edges of length ≈ 1 while \(|st|\approx 1\). Numerically the ratio is about \(4-11.3\,\delta\) (3.9887 for δ = 0.001). Move δ in the figure to see it; it is also the preset <b>5 points ≈ 4</b> of the lab. It is not the construction of [3] with its 8 points.</p>
+        <p>Why 4: the path makes three sides of the hexagon around \(t\) (\(s\to a\to b\to c\)) and then goes straight from \(c\) to \(t\). So it has length close to 4 while \(s\) is at distance close to 1 from \(t\). The zig-zag of Lemma 1 is exactly what replaces the last edge \(c\to t\) by a path of length close to 2.</p>
+      </div>
+      <figure id="four-fig" class="fig">
+        <div class="toolbar">
+          <label class="slider">δ <input id="four-delta" type="range" min="-3.3" max="-1" step="0.01"><output id="four-delta-out"></output></label>
+          <label><input id="four-all" type="checkbox" checked> all Θ<sub>6</sub> edges</label>
+        </div>
+        <canvas class="cv cv-square" aria-label="The 5-point example with ratio close to 4"></canvas>
+        <div class="statgrid tight">
+          <div class="kv"><span>\(d_G(s,t)\)</span><b id="four-len">—</b></div>
+          <div class="kv"><span>\(|st|\)</span><b id="four-st">—</b></div>
+          <div class="kv big"><span>ratio</span><b id="four-ratio">—</b></div>
+          <div class="kv"><span>\((4-\text{ratio})/\delta\)</span><b id="four-gap">—</b></div>
+          <div class="kv wide"><span>shortest path</span><b id="four-path">—</b></div>
+        </div>
+        <figcaption>The dashed hexagon is the unit ball of \(\|\cdot\|_{\hexn}\) around \(t\). The thick path is the shortest path from \(s\) to \(t\).</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -229,49 +289,167 @@
     <div class="two">
       <div class="prose">
         <h3>First results of the random search</h3>
-        <p>I wrote a simulated-annealing search: it moves one point at a time, and accepts worse moves with a probability that decreases over time. Moves that bring two points within \(10^{-3}\) of each other, or within \(10^{-3}\) rad of a cone boundary, are rejected. Without this rule, the search exploits degenerate configurations (points on the same horizontal line) and reports meaningless ratios in the thousands. The best sets were checked with both edge definitions. Best ratio found, 8 restarts × 6 000 steps:</p>
+        <p>I wrote a simulated-annealing search: it moves one point at a time and accepts worse moves with a probability that decreases over time. Moves that bring two points within \(10^{-3}\) of each other, or within \(10^{-3}\) rad of a cone boundary, are rejected. Without this rule, the search exploits degenerate configurations (points on the same horizontal line) and reports meaningless ratios in the thousands. The best sets were checked with both edge definitions. For the final version half of the restarts start from the points \(s,a,b,c,t\) of Lemma 1 (plus random points near \(ct\)) instead of random points. Best ratio found, 8 restarts × 6 000 steps:</p>
       </div>
       <table class="tbl results">
         <thead><tr><th>n</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>10</th><th>12</th><th>16</th></tr></thead>
-        <tbody><tr><th>best ratio</th><td>2.982</td><td>3.918</td><td>3.916</td><td>3.903</td><td>3.889</td><td>3.875</td><td>3.877</td><td>3.860</td></tr></tbody>
-        <caption>Preliminary. The values for n ≥ 6 are below n = 5, so the search clearly gets stuck in local optima for larger n. For n = 5 it is also below the 3.966 of the hand-made set \(s,a,b,c,t\). Improving it (restarts from the Lemma 1 structure, more iterations) is on the to-do list.</caption>
+        <tbody><tr><th>best ratio</th><td>2.982</td><td>3.935</td><td>3.944</td><td>3.903</td><td>3.902</td><td>3.911</td><td>3.885</td><td>3.912</td></tr></tbody>
+        <caption>The structured starts help a bit (n = 5 went from 3.918 to 3.935). But the search never reaches the 3.989 of the hand-made 5-point set. I think the reason is the general position rule: the hand-made set gets close to 4 only when its points are within about δ of a cone boundary. The search rejects angles below \(10^{-3}\) rad. So the search is useful to explore, not to find the worst case. Values for n ≥ 6 are not higher than for n = 5.</caption>
       </table>
     </div>
   </div>
 </section>
 
-<!-- proof --> 
+<!-- proof -->
 <section id="proof" class="band">
   <div class="wrap">
     <h2><span class="secno">5</span>Why never more than 5: a map of the proof</h2>
-   <div class="two">
-      <div class="prose">
-        <p>The paper proves something stronger than \(d(s,t)\le 5|st|\):</p>
-        <p class="thm"><b>Theorem 1.</b> For every \(P\) in general position and all \(s,t\in P\): \(d_{\Theta_6}(s,t)\le 5\|st\|_{\tipn}\le 5|st|\).</p>
-       <p>The idea is to measure distances with hexagons instead of circles, because hexagons fit the six cones. Here \(\|\cdot\|_{\hexn}\) is the hexagonal norm whose unit ball is the regular hexagon with corners \((\pm1,0)\) (it defines Θ<sub>6</sub>), and \(\|\cdot\|_{\tipn}\) is the "tipped" hexagonal norm whose unit ball has corners \((0,\pm 2/\sqrt3)\). We have \(\|\cdot\|_{\tipn}\le\|\cdot\|_2\le\|\cdot\|_{\hexn}\).</p>
-        <ol class="steps">
-          <li><b>Induction on \(\|st\|_{\hexn}\).</b> Assume the bound holds for every pair that is closer than \(s\) and \(t\), and look for a short enough path from \(s\) to \(t\). The closest pair is a direct edge. Normalise \(\|st\|_{\hexn}=1\) and, by symmetry, \(s\in C_t^0\) to the right of the bisector \(B_t^0\).</li>
-          <li><b>Lemma 2.</b> The target length can be read off one small triangle between \(s\) and \(t\): the bigger the triangle, the smaller the target. Let \(y_0\) be the side of the triangle \(T=C_t^0\cap C_s^2\). Then \(1=\|st\|_{\tipn}+\tfrac12 y_0\), so the target is \(5\|st\|_{\tipn}=5-2.5\,y_0\). <span class="tag ok">checked numerically</span></li>
-          <li><b>Empty region (Def. 1, Lemma 4).</b> If \(s,t\) were a counterexample, a whole region between them would have to be empty, and the arrow leaving \(s\) upwards would have to land in a small window. Let \(p=B_s^3\cap B_t^1\) and \(q=B_s^4\cap B_t^0\), and let \(R\) be the parallelogram \(sqtp\) together with \(\nabla_s^p\) and \(\nabla_s^q\). If \(d(s,t)&gt;5\|st\|_{\tipn}\), then no point is inside \(R\), the edge \(sy\) of \(C_s^3\) ends in \(C_t^1\), and \(2.5y_0+3.5y_1&lt;1\), where \(y_1=1-\|\nabla_s^y\|\). <span class="tag ok">figure</span></li>
-          <li><b>Greedy paths and spirals.</b> Arrows towards \(t\) can circle around it, so the paper only follows them for a short stretch. The greedy path towards \(t\) may spiral, so the paper follows it only until its first edge crossing a boundary ray of \(t\). An edge that crosses both \(B_t^0\) and \(B_t^1\) ends at least twice as close to \(t\) as it is long (Lemma 9). <span class="tag todo">figure planned</span></li>
-          <li><b>Two candidate paths.</b> There are two natural ways to reach \(t\), one on each side. If both were too long, the positions of the points would have to satisfy a list of inequalities. The <em>y-path</em> goes counter-clockwise around \(t\), the <em>x-path</em> clockwise. Their lengths give a system of linear inequalities in \(y_0, y_1, \dots\) <span class="tag todo">to explain</span></li>
-          <li><b>Linear programming.</b> These inequalities can never all hold at the same time, and this is checked case by case. Under two assumptions there are \(2\times2\times5=20\) cases. In 16 of them, linear programming shows that the system has no solution. The other 4 need a third, shortcut path. The cases where the assumptions fail are handled in the full version. <span class="tag todo">reproduce one LP in the page</span></li>
-        </ol>
-      </div>
-      <figure id="proof-fig" class="fig">
-        <canvas class="cv cv-square" aria-label="Proof figure: region R, triangle T and the window for y"></canvas>
-        <figcaption>Drag \(s\) along the bottom side of the unit hexagon (\(\|st\|_{\hexn}=1\)), and drag \(y\). <span class="key key-r"></span> region \(R\) · <span class="key key-t"></span> triangle \(T\), side \(y_0\) · <span class="key key-w"></span> the only places where the edge \(sy\) could end in a counterexample (Lemma 4).</figcaption>
-        <div class="statgrid tight">
-          <div class="kv"><span>\(|st|\)</span><b id="pf-st2">—</b></div>
-          <div class="kv"><span>\(\|st\|_{\tipn}\)</span><b id="pf-st98">—</b></div>
-          <div class="kv"><span>\(y_0\)</span><b id="pf-y0">—</b></div>
-          <div class="kv"><span>\(5\|st\|_{\tipn}\)</span><b id="pf-bound">—</b></div>
-          <div class="kv"><span>\(5-2.5y_0\)</span><b id="pf-bound2">—</b></div>
-          <div class="kv"><span>\(y_1=1-\|\nabla_s^y\|\)</span><b id="pf-y1">—</b></div>
-          <div class="kv"><span>\(2.5y_0+3.5y_1\)</span><b id="pf-lhs">—</b></div>
-          <div class="kv wide"><span>status of \(y\)</span><b id="pf-status">—</b></div>
+    <div class="proof-intro">
+      <p>The paper proves something stronger than \(d(s,t)\le 5|st|\):</p>
+      <p class="thm"><b>Theorem 1.</b> For every \(P\) in general position and all \(s,t\in P\): \(d_{\Theta_6}(s,t)\le 5\|st\|_{\tipn}\le 5|st|\).</p>
+      <p>The idea is to measure distances with hexagons instead of circles because hexagons fit the six cones. Here \(\|\cdot\|_{\hexn}\) is the hexagonal norm whose unit ball is the regular hexagon with corners \((\pm1,0)\) (it defines Θ<sub>6</sub>). The other one, \(\|\cdot\|_{\tipn}\), is the "tipped" hexagonal norm whose unit ball has corners \((0,\pm 2/\sqrt3)\). We have \(\|\cdot\|_{\tipn}\le\|\cdot\|_2\le\|\cdot\|_{\hexn}\).</p>
+      <p>The proof goes in four steps. Each step has its own block, with its own interactive figure.</p>
+      <ol class="roadmap">
+        <li><a href="#p-target">5.1 The target and the empty region</a>: induction on the distance, the target length \(5-2.5y_0\) (Lemma 2), and a region \(R\) that a counterexample forces to be empty (Lemma 4).</li>
+        <li><a href="#p-toll">5.2 The toll for crossing \(R\)</a>: greedy paths can spiral, so the proof stops them at the first edge that jumps over \(R\). Lemma 9 says where such an edge lands.</li>
+        <li><a href="#p-paths">5.3 Two candidate paths</a>: one path on each side of \(t\). If both were too long, the points would satisfy a list of inequalities.</li>
+        <li><a href="#lp">5.4 The linear programs</a>: these inequalities never hold together. Linear programming rules out 16 of the 20 cases and a third path closes the other 4.</li>
+      </ol>
+    </div>
+
+    <div class="pstep" id="p-target">
+      <h3>5.1 The target and the empty region</h3>
+      <div class="two">
+        <div class="prose">
+          <p><b>Induction.</b> Assume the bound holds for every pair that is closer than \(s\) and \(t\) in \(\|\cdot\|_{\hexn}\). Then look for a short enough path from \(s\) to \(t\). The closest pair is a direct edge. Normalise \(\|st\|_{\hexn}=1\) and, by symmetry, \(s\in C_t^0\) to the right of the bisector \(B_t^0\).</p>
+          <p><b>The target (Lemma 2).</b> The target length can be read off one small triangle between \(s\) and \(t\): the bigger the triangle, the smaller the target. Let \(y_0\) be the side of the triangle \(T=C_t^0\cap C_s^2\). Then \(1=\|st\|_{\tipn}+\tfrac12 y_0\). So the target is \(5\|st\|_{\tipn}=5-2.5\,y_0\). <a class="tag ok" href="#checks-sec">checked in §6</a></p>
+          <p><b>The empty region (Definition 1, Lemma 4).</b> If \(s,t\) were a counterexample, a whole region between them would have to be empty. And the arrow leaving \(s\) upwards would have to land in a small window. Let \(p=B_s^3\cap B_t^1\) and \(q=B_s^4\cap B_t^0\), and let \(R\) be the parallelogram \(sqtp\) together with \(\nabla_s^p\) and \(\nabla_s^q\). If \(d(s,t)&gt;5\|st\|_{\tipn}\), then no point is inside \(R\), the edge \(sy\) of \(C_s^3\) ends in \(C_t^1\), and \(2.5y_0+3.5y_1&lt;1\), where \(y_1=1-\|\nabla_s^y\|\).</p>
+          <p>The figure shows \(R\), the triangle \(T\) and the window where \(y\) would have to be.</p>
+          <details class="more">
+            <summary>Details: why the region \(R\) is empty</summary>
+            <p>The parallelogram \(Q=sqtp\) is exactly the region where going through a point costs nothing extra in the tipped norm: for every \(w\in Q\), \(\|sw\|_{\tipn}+\|wt\|_{\tipn}=\|st\|_{\tipn}\) (checked in <a href="#checks-sec">§6</a>). If a vertex \(w\ne s,t\) were in \(Q\), both pieces would be shorter than \(st\), so induction would give</p>
+            $$d(s,t)\le d(s,w)+d(w,t)\le 5\|sw\|_{\tipn}+5\|wt\|_{\tipn}=5\|st\|_{\tipn},$$
+            <p>and \(s,t\) would not be a counterexample ([<a href="#r2">2</a>], p. 9). For the two triangles \(\nabla_s^p\) and \(\nabla_s^q\) the paper uses Lemma 3 instead (pp. 10–11), also checked in <a href="#checks-sec">§6</a>:</p>
+            <p class="thm"><b>Lemma 3.</b> If \(u,v\in C_t^i\cup C_t^{i+1}\) lie between the bisectors \(B_t^i\) and \(B_t^{i+1}\), and \(v\in C_u^{i+3}\cup C_u^{i+4}\), then \(\|uv\|_{\hexn}\le 2(\|ut\|_{\tipn}-\|vt\|_{\tipn})\).</p>
+          </details>
+          <details class="more">
+            <summary>Details: where inequality (2) comes from</summary>
+            <p>This is the one inequality of the linear programs that I re-derive here (from [<a href="#r2">2</a>], pp. 10–11). Assume \(s,t\) is a counterexample, so \(d(s,t)&gt;5\|st\|_{\tipn}=5-2.5y_0\). Let \(sy\) be the edge of \(s\) in \(C_s^3\). By Lemma 4, \(y\) lies in \(C_t^1\) above \(B_t^1\).</p>
+            <ul>
+              <li>The edge: \(\|sy\|_{\hexn}=\|\nabla_s^y\|=1-y_1\), by definition of \(y_1\).</li>
+              <li>The rest of the path: \(y\) is closer to \(t\) than \(s\), so by induction \(d(y,t)\le5\|yt\|_{\tipn}\). Since \(y\) is in the triangle \(C_t^1\cap C_s^3\), whose side is \(1-y_0\), we have \(\|yt\|_{\hexn}\le1-y_0\). Lemma 2 then gives \(\|yt\|_{\tipn}=\|yt\|_{\hexn}-\tfrac12y_1\le1-y_0-\tfrac12y_1\).</li>
+            </ul>
+            $$5-2.5y_0 \;<\; d(s,t) \;\le\; \|sy\|_{\hexn}+d(y,t) \;\le\; (1-y_1)+5\bigl(1-y_0-\tfrac12y_1\bigr),$$
+            <p>and moving everything to one side gives \(2.5y_0+3.5y_1&lt;1\). The figure shows the value of \(2.5y_0+3.5y_1\) live: when \(y\) is placed where this sum is \(\ge1\), the path through \(y\) is short enough and \(s,t\) cannot be a counterexample.</p>
+          </details>
         </div>
-      </figure>
+        <figure id="proof-fig" class="fig">
+          <canvas class="cv cv-square" aria-label="Proof figure: region R, triangle T and the window for y"></canvas>
+          <figcaption>Drag \(s\) along the bottom side of the unit hexagon (\(\|st\|_{\hexn}=1\)) and drag \(y\). <span class="key key-r"></span> region \(R\) · <span class="key key-t"></span> triangle \(T\), side \(y_0\) · <span class="key key-w"></span> the only places where the edge \(sy\) could end in a counterexample (Lemma 4).</figcaption>
+          <div class="statgrid tight">
+            <div class="kv"><span>\(|st|\)</span><b id="pf-st2">—</b></div>
+            <div class="kv"><span>\(\|st\|_{\tipn}\)</span><b id="pf-st98">—</b></div>
+            <div class="kv"><span>\(y_0\)</span><b id="pf-y0">—</b></div>
+            <div class="kv"><span>\(5\|st\|_{\tipn}\)</span><b id="pf-bound">—</b></div>
+            <div class="kv"><span>\(5-2.5y_0\)</span><b id="pf-bound2">—</b></div>
+            <div class="kv"><span>\(y_1=1-\|\nabla_s^y\|\)</span><b id="pf-y1">—</b></div>
+            <div class="kv"><span>\(2.5y_0+3.5y_1\)</span><b id="pf-lhs">—</b></div>
+            <div class="kv wide"><span>status of \(y\)</span><b id="pf-status">—</b></div>
+          </div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="pstep" id="p-toll">
+      <h3>5.2 The toll for crossing \(R\) (Lemma 9)</h3>
+      <div class="two">
+        <div class="prose">
+          <p>Arrows towards \(t\) can circle around it (see <a href="#spiral">the spiral in §2</a>). So the paper only follows a greedy path until its first edge that crosses a boundary ray of \(t\). Since \(R\) is empty, such an edge has to jump over \(R\). Lemma 9 says that it then ends at least twice as close to \(t\) as it is long.</p>
+          <p class="thm"><b>Lemma 9.</b> Let \(uv\) be an edge contained in \(\nabla_u^t\) that crosses both bisectors \(B_t^0\) and \(B_t^1\). Then \(2\|vt\|_{\tipn}\le\|uv\|_{\hexn}\).</p>
+          <p>The proof in [<a href="#r2">2</a>] (p. 15) is short and the figure follows it. Take \(u\) in \(C_t^0\) left of \(B_t^0\) and \(v\) in \(C_t^1\) above \(B_t^1\). Let \(v'\) be the point of the horizontal line through \(t\) just above \(v\), and \(t'\) the point where the ray from \(v\) at 240° meets \(B_t^0\).</p>
+          <ul>
+            <li>Since \(v\) is above \(B_t^1\), its tipped distance to \(t\) is just its horizontal distance: \(\|vt\|_{\tipn}=|tv'|\).</li>
+            <li>The segment \(vt'\) has slope \(\sqrt3\). So it is twice as long as its horizontal extent: \(|vt'|=2|tv'|\).</li>
+            <li>Since \(u\) is left of \(B_t^0\), the segment \(vt'\) fits in the triangle \(\nabla_u^v\), whose side is \(\|uv\|_{\hexn}\). So \(|vt'|\le\|uv\|_{\hexn}\).</li>
+          </ul>
+          <p>Together: \(2\|vt\|_{\tipn}=|vt'|\le\|uv\|_{\hexn}\). In words, an edge that jumps over the empty region pays a "toll" (the word used in the paper): where it lands, the distance to \(t\) is at most half of its length. Drag \(u\) and \(v\) to try to break it.</p>
+        </div>
+        <figure id="l9-fig" class="fig">
+          <canvas class="cv cv-square" aria-label="Lemma 9: the edge uv and the points t' and v'"></canvas>
+          <figcaption>Drag \(u\) and \(v\). Shaded: \(\nabla_u^t\). Dashed outline: \(\nabla_u^v\). Dotted lines: the bisectors \(B_t^0\) and \(B_t^1\).</figcaption>
+          <div class="statgrid tight">
+            <div class="kv"><span>\(\|vt\|_{\tipn}\)</span><b id="l9-vt">—</b></div>
+            <div class="kv"><span>\(|tv'|\)</span><b id="l9-vpt">—</b></div>
+            <div class="kv"><span>\(|vt'|\)</span><b id="l9-vtp">—</b></div>
+            <div class="kv"><span>\(\|uv\|_{\hexn}\)</span><b id="l9-uv">—</b></div>
+            <div class="kv wide"><span>Lemma 9</span><b id="l9-status">—</b></div>
+          </div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="pstep" id="p-paths">
+      <h3>5.3 Two candidate paths</h3>
+      <div class="two">
+        <div class="prose">
+          <p>The proof compares two ways of going from \(s\) to \(t\). The <b>y-path</b> takes the edge \(sy\) of the cone \(C_s^3\) (the one going up) and then follows greedy routing towards \(t\). The <b>x-path</b> takes the edge \(sx\) of the cone \(C_s^4\) and then follows greedy routing too. In the situation of the proof the y-path goes (roughly) counter-clockwise around \(t\) and the x-path clockwise. The paper explains the idea like this: where the two paths meet they "compete for space": the long edges of one path come with large empty regions that push the other path closer to \(t\) [<a href="#r2">2</a>, p. 13].</p>
+          <p>The paper first makes two assumptions (roughly: the greedy path from \(y\) really turns counter-clockwise around \(t\) without getting close to it, and no edge of a certain kind leaves the triangle \(T\) towards cone 4). Then it bounds the length of both paths with variables \(y_i, Y_i, x_i, X_i\). If both paths were longer than the target, these variables would satisfy a list of inequalities (see <a href="#lp">5.4</a>).</p>
+          <p>The figure shows the two paths on a real point set. A counterexample cannot be drawn because it does not exist (that is what the theorem says). Here I follow both greedy paths all the way to \(t\). The proof only follows them until their first edge that crosses \(R_t^0\) and then uses induction. This is where Lemma 9 helps. Drag the points or take a new random set; the turning of each path around \(t\) is measured live.</p>
+        </div>
+        <figure id="two-fig" class="fig">
+          <div class="toolbar">
+            <button class="btn sm" id="two-new">New random set</button>
+            <button class="btn sm ghost" id="two-reset">Back to the example</button>
+          </div>
+          <canvas class="cv cv-square" aria-label="The y-path and the x-path from s to t"></canvas>
+          <div class="statgrid tight">
+            <div class="kv"><span>y-path length</span><b id="two-ly">—</b></div>
+            <div class="kv"><span>y-path turns around \(t\)</span><b id="two-wy">—</b></div>
+            <div class="kv"><span>x-path length</span><b id="two-lx">—</b></div>
+            <div class="kv"><span>x-path turns around \(t\)</span><b id="two-wx">—</b></div>
+            <div class="kv"><span>shortest path \(d_G(s,t)\)</span><b id="two-d">—</b></div>
+            <div class="kv"><span>\(5\|st\|_{\tipn}\)</span><b id="two-b">—</b></div>
+            <div class="kv wide"><span>\(s\) in \(C_t^0\), right of \(B_t^0\) (as in the proof)?</span><b id="two-ok">—</b></div>
+          </div>
+          <figcaption>Thick lines: y-path and x-path (turns: + is counter-clockwise). Thin grey arrows: the other edges of Θ<sub>6</sub>. Dotted: the boundary rays of the cones of \(t\).</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div id="lp" class="pstep lp">
+      <h3>5.4 The linear programs</h3>
+      <div class="two">
+        <div class="prose">
+          <p>The inequalities of <a href="#p-paths">5.3</a> can never all hold at the same time. This is checked case by case. Under the two assumptions there are \(2\times2\times5=20\) cases. In 16 of them, linear programming shows that the system has no solution. The other 4 need a third, shortcut path (Section 5.3 of [<a href="#r2">2</a>]). The cases where the assumptions fail are in Sections 5.1 and 5.2 of [<a href="#r2">2</a>].</p>
+          <p>This is the part of the proof that surprised me most: the final contradiction is not found by hand but by a computer. I copied the inequalities of Section 4 of [<a href="#r2">2</a>] (pp. 14, 19 and 20) into my code. The page solves the 20 systems in the browser with a small simplex method (two phases, Bland's rule, in <code>js/lp.js</code>).</p>
+          <p>I get exactly the result of the paper: 16 systems are infeasible and the 4 feasible ones are (X1, Y1, J2), (X1, Y1, J3), (X1, Y1, J4) and (X0, Y0, J3), the same four cases that the paper handles separately with a third path. I see this as a good sign that I copied the inequalities correctly. I did not re-derive each inequality myself; only (2) is derived in <a href="#p-target">5.1</a>.</p>
+          <details class="more">
+            <summary>Details: the variables, where each inequality comes from, and how infeasibility is certified</summary>
+            <p>All variables are lengths so they are \(\ge 0\). Roughly, \(Y_i\) is the distance to \(t\) of the first vertex of the y-path in the cone \(C_t^i\) and \(y_i\) measures how far the y-path is from the next cone. \(x_i\) and \(X_i\) are the same for the x-path. \(\|v^yt\|_{\tipn}\) and \(\|v^xt\|_{\tipn}\) are the distances to \(t\) after the first edge of each path that crosses \(R_t^0\). The paper writes two more quantities as sizes of empty triangles, \(\|C_t^i\cap C_{y^i}^{i-2}\|\) and \(\|C_t^i\cap C_{x^i}^{i+2}\|\); I call them \(a_i\) and \(b_i\).</p>
+            <p>Inequalities (2) and (4)–(7) hold in every case. (6) and (7) say that the y-path and the x-path, completed by induction, are both longer than \(5\|st\|_{\tipn}=5-2.5y_0\). The paper prints them with \(\le\). But they start from the assumption \(d(s,t)&gt;5\|st\|_{\tipn}\). So they also hold with \(&lt;\) and I use them that way. This matters: with \(\le\) only 8 of the 20 systems are infeasible. The 20 cases come from three choices: in which cone the y-path lands after crossing \(R_t^0\) (Y0 or Y1), the same for the x-path (X0 or X1), and how the two paths share the cones (no \(j\), or \(j=2,3,4,5\)).</p>
+            <table class="tbl">
+              <thead><tr><th>Inequalities</th><th>What they say</th><th>From</th></tr></thead>
+              <tbody>
+                <tr><td>(2)</td><td>\(2.5y_0+3.5y_1&lt;1\), derived in 5.1</td><td>Lemma 4</td></tr>
+                <tr><td>(4)</td><td>each time the y-path enters the next cone it is at least \(y_i\) closer to \(t\): \(Y_{i+1}\le Y_i-y_i\), and \(y_0+Y_1\le1\)</td><td>empty triangles, p. 14</td></tr>
+                <tr><td>(5)</td><td>the same for the x-path</td><td>p. 14</td></tr>
+                <tr><td>(6)</td><td>the y-path up to \(v^y\) is at most \(Y_1+\dots+Y_5+Y_0\) long (Lemma 8: only the first vertex of each cone matters), then induction from \(v^y\)</td><td>Lemma 8, induction</td></tr>
+                <tr><td>(7)</td><td>the same for the x-path, starting with the edge \(sx\)</td><td>Lemma 8, induction</td></tr>
+                <tr><td>(10)–(17)</td><td>how close to \(t\) each path lands after crossing \(R_t^0\); four of them, (11), (13), (15) and (17), are Lemma 9</td><td>Lemma 9, empty regions, pp. 15–20</td></tr>
+                <tr><td>(18), (19)</td><td>the two paths compete for the cones: where the y-path has a large empty triangle, the x-path has to stay close to \(t\)</td><td>p. 20</td></tr>
+              </tbody>
+            </table>
+            <p>For the strict inequalities I add a margin \(e\le 1\) and maximise it: the system has a solution exactly when the best margin is \(&gt;0\). A solver saying "infeasible" is not very convincing on its own. So for every infeasible case the page also computes a <b>certificate</b>: non-negative weights such that the weighted sum of the inequalities gives something impossible, like \(0&lt;0\) (the idea behind Farkas' lemma). The weights are turned into fractions and checked with exact arithmetic.</p>
+          </details>
+        </div>
+        <div class="lp-ui">
+          <button class="btn primary" id="lp-run">Solve the 20 systems</button>
+          <p class="mono small" id="lp-summary"></p>
+          <table class="tbl lpgrid" id="lp-grid"></table>
+          <p class="small muted">Click a case to see its inequalities and the certificate if it is infeasible.</p>
+        </div>
+      </div>
+      <div id="lp-detail" class="lp-detail"></div>
     </div>
   </div>
 </section>
@@ -288,43 +466,61 @@
     </div>
 </section>
 
-<!-- status -->
-<section id="status" class="band">
+<!-- related work -->
+<section id="related" class="band">
+  <div class="wrap narrow">
+    <h2><span class="secno">7</span>Related work</h2>
+    <p>How I searched: I started from the introduction and the reference list of the paper [<a href="#r2">2</a>], looked up the articles (Crossref, OpenAlex, the publishers' pages) and searched for papers that cite [<a href="#r1">1</a>]. When I checked (November 2026), OpenAlex did not list any paper citing it yet. This is not surprising for a paper from SoCG 2026. I only keep here the results that are directly about Θ-graphs; the introduction of [<a href="#r2">2</a>] gives more background (Delaunay triangulations, Yao graphs, other spanners).</p>
+
+    <h3>Θ-graphs and the undirected case</h3>
+    <p>A geometric graph is a \(c\)-spanner if every shortest path is at most \(c\) times longer than the straight line; the book of Narasimhan and Smid [<a href="#r8">8</a>] is the standard reference. Θ-graphs come from Clarkson [<a href="#r6">6</a>] and Keil and Gutwin [<a href="#r7">7</a>]. For Θ<sub>6</sub> the undirected case is well understood. Bonichon, Gavoille, Hanusse and Ilcinkas showed that the undirected Θ<sub>6</sub>-graph is the union of two TD-Delaunay graphs (the Delaunay graph defined with empty equilateral triangles instead of empty disks), which Chew had shown to be 2-spanners [<a href="#r5">5</a>], and that 2 is the best possible [<a href="#r11">11</a>]. More generally, Bose et al. proved the tight bound \(1+2\sin(\theta/2)\) for \(\Theta_{4k+2}\), where \(\theta\) is the angle of the cones [<a href="#r4">4</a>]; for Θ<sub>6</sub> this gives 2 again.</p>
+
+    <h3>Directed Θ-graphs</h3>
+    <p>With directions things get harder. The directed \(\Theta_k\)-graph is a constant spanner for \(k\ge6\) [<a href="#r3">3</a>, <a href="#r4">4</a>, <a href="#r9">9</a>] and for \(k=4\) [<a href="#r10">10</a>]. Greedy routing gives short paths only for \(k\ge7\) [<a href="#r9">9</a>]. For Θ<sub>6</sub>, Akitaya, Biniaz and Bose [<a href="#r3">3</a>] gave the first bounds: an upper bound of 7 and a construction with 8 points and ratio \(4-\varepsilon\) (their Theorems 7 and 25). Their upper bound starts from a simple fact: if \(ab\) is an edge, the greedy path from \(b\) back to \(a\) is at most \(4\sqrt3\approx 6.9\) times longer than \(ab\) (their Corollary 5). With the bound 2 of the undirected graph this already gives about 13.9. A finer argument through an intermediate vertex brings it down to 7. They also give a routing algorithm that only looks at the neighbours of the current vertex, with routing ratio at most 8. They prove that no such algorithm can do better than \(6-\varepsilon\). They left the gap between 4 and 7 open. The paper [<a href="#r1">1</a>] closes it with 5. This is the first tight bound for any directed \(\Theta_k\)-graph.</p>
+    <p>Tight bounds like this are rare. Apart from the \(\Theta_{4k+2}\)-graphs, Table 1 of [<a href="#r2">2</a>] only lists a few Delaunay-type graphs (with a triangle, a square or a hexagon as empty region). For the usual Delaunay triangulation the exact spanning ratio is still open [<a href="#r2">2</a>, p. 2].</p>
+  </div>
+</section>
+
+<!-- summary -->
+<section id="status" class="band alt">
   <div class="wrap">
-    <h2><span class="secno">7</span>What is done, what comes next</h2>
+    <h2><span class="secno">8</span>Summary and limits</h2>
     <div class="status">
       <div>
-        <h4><span class="dot ok"></span>Done in this preliminary version</h4>
+        <h4><span class="dot ok"></span>What the page does</h4>
         <ul>
-          <li>Core library: Θ<sub>6</sub> by both definitions, hexagonal norms, exact spanning ratio, greedy routing</li>
-          <li>Interactive lab with the worst pair, routing animation and JSON import/export</li>
-          <li>Lemma 1 construction rebuilt and checked numerically, with the unfolding view and the ratio-vs-δ chart</li>  
-          <li>Game and a first simulated-annealing search</li>
-          <li>Proof figure for steps 1–3 (normalisation, Lemma 2, empty region R, Lemma 4 window)</li>
-          <li>Test suite (Node and in the browser)</li>
+          <li>Builds Θ<sub>6</sub> with both definitions, computes exact spanning ratios and greedy routes (§1, §2)</li>
+          <li>Shows that greedy routing can spiral, with an example I built myself (§2)</li>
+          <li>Rebuilds the 5 − ε construction of Lemma 1, checks it numerically and points out a probable typo in the definition of the \(q^i\) (§3)</li>
+          <li>Gives a 5-point example with ratio close to 4, with a slider on δ (§3), a game and a search for bad point sets (§4)</li>
+          <li>Explains the structure of the upper bound proof, with figures for Lemmas 2, 4 and 9 and for the two candidate paths (§5)</li>
+          <li>Solves the 20 linear programs of the paper, finds the same 16 / 4 split and checks a certificate for each infeasible case (§5)</li>
+          <li>Tests the main claims numerically, offline and in the browser (§6)</li>
         </ul>
       </div>
       <div>
-        <h4><span class="dot todo"></span>Before 25 November</h4>
+        <h4><span class="dot todo"></span>What I did not do</h4>
         <ul>
-          <li>Confirm the probable typo in the \(q^i\) formula of Lemma 1 (see §3)</li>
-          <li>Add Lemmas 3 and 9 (now checked in Node with the exact statements of the paper) to the in-browser checks and to the proof figures</li>
-          <li>The 4 − ε construction and a spiralling greedy example from [<a href="#r3">3</a>]</li>
-          <li>Figures for steps 4–6, with one of the linear programs solved in the page</li>
-          <li>A better search for bad point sets (larger n, structured starts)</li>
-          <li>Short animated video, full bibliography and literature review</li>
-         </ul>
+          <li>The rest of the upper bound: Sections 5.1–5.3 of [<a href="#r2">2</a>] (when the assumptions fail, and the third path for the 4 remaining cases). I only describe them.</li>
+          <li>I took the inequalities of the linear programs from the paper. I re-derive the first one, (2), and explain where the other families come from (§5), but I did not re-derive each of them.</li>
+          <li>The 8-point construction of [<a href="#r3">3</a>] and their spiral figure: I did not reproduce them; my 5-point example and my spiral were built on my own.</li>
+          <li>The \(O(n\log n)\) construction of Θ<sub>6</sub> [<a href="#r8">8</a>]: brute force is fast enough for the sizes used here.</li>
+        </ul>
       </div>
       <div class="ask">
-        <h4>Feedback I would love</h4>
+        <h4>Open questions from my experiments</h4>
         <ul>
-          <li>Is the lab understandable without reading the text first?</li>
-          <li>Which step of the proof would you most like to see as a figure?</li>
-          <li>Can you get above 4 with 5 or 6 points? I do not know if 4 is the limit for 5 points. Tell me your best ratio (or export the JSON).</li>
+          <li>With 5 points I get ratios close to 4 but never above. Is 4 the maximum for 5 points? I do not know a proof.</li>
+          <li>Lemma 1 needs a number of points that grows like \(1/\delta\) to reach \(5-O(\delta)\). Can a smaller point set get closer to 5?</li>
         </ul>
       </div>
     </div>
- </div>
+    <div class="ai-note" id="ai">
+      <h3>Work distribution and outside help</h3>
+      <p>This is a solo project, so there is no work to split: I did all the parts myself. The only outside help was AI, described here.</p>
+      <p>I made this project with the help of AI tools. Claude and Claude Code (Anthropic) wrote the code of the page and the tests following my plan, explained parts of the paper to me and drafted the texts. Perplexity helped me choose the topic and search the literature. The video was made with Claude Code, HyperFrames, ffmpeg and ElevenLabs. The choices are mine: the topic, the plan, what goes on the page and which references to keep. I reread and rephrased the texts and checked the claims against the paper and with the tests of <a href="#checks-sec">§6</a>. The <a href="AI_JOURNAL.md">AI journal</a> (also in the zip) lists the tools, the main prompts and what I checked, corrected or rejected.</p>
+    </div>
+  </div>
 </section>
   
 <section id="refs" class="band alt">
@@ -340,6 +536,8 @@
       <li id="r7">J. Mark Keil and Carl A. Gutwin. Classes of graphs which approximate the complete Euclidean graph. <i>Discrete &amp; Computational Geometry</i>, 7(1):13–28, 1992. <a href="https://doi.org/10.1007/BF02187821">doi:10.1007/BF02187821</a>.</li>
       <li id="r8">Giri Narasimhan and Michiel Smid. <i>Geometric Spanner Networks</i>. Cambridge University Press, 2007. <a href="https://doi.org/10.1017/CBO9780511546884">doi:10.1017/CBO9780511546884</a>.</li>
       <li id="r9">Jim Ruppert and Raimund Seidel. Approximating the d-dimensional complete Euclidean graph. In <i>Proc. 3rd Canadian Conference on Computational Geometry (CCCG 1991)</i>, pages 207–210, 1991.</li>
+      <li id="r10">Prosenjit Bose, Jean-Lou De Carufel, Darryl Hill, and Michiel Smid. On the spanning and routing ratio of the directed Theta-four graph. <i>Discrete &amp; Computational Geometry</i>, 71(3):872–892, 2024. <a href="https://doi.org/10.1007/s00454-023-00597-8">doi:10.1007/s00454-023-00597-8</a>.</li>
+      <li id="r11">Nicolas Bonichon, Cyril Gavoille, Nicolas Hanusse, and David Ilcinkas. Connections between theta-graphs, Delaunay triangulations, and orthogonal surfaces. In <i>Proc. 36th International Workshop on Graph-Theoretic Concepts in Computer Science (WG 2010)</i>, volume 6410 of LNCS, pages 266–278. Springer, 2010. <a href="https://doi.org/10.1007/978-3-642-16926-7_25">doi:10.1007/978-3-642-16926-7_25</a>.</li>
     </ol>
   </div>
 </section>
@@ -347,8 +545,8 @@
 </main>
 <footer class="foot">
   <div class="wrap">
-    <span>INFO-F420 · Université libre de Bruxelles · 2026–27</span>
-    <span>Plain HTML, CSS and JavaScript, no build step. Maths rendered with KaTeX.</span>
+    <span>INFO-F420 · Université libre de Bruxelles · 2026–27 · <a href="https://github.com/ziazzag/directed-theta6-spanning-ratio">Source code</a></span>
+    <span>Plain HTML, CSS and JavaScript, no build step. Formulas: KaTeX (MIT licence). Fonts: Spectral, Public Sans, Source Code Pro (Google Fonts, SIL Open Font Licence).</span>
   </div>
 </footer>
 </body>

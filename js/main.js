@@ -16,9 +16,9 @@
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { label(); window.Viz.themeChanged(); });
     label();
 
-    if (window.renderMathInElement) {
-      renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false, macros: { '\\hexn': '\\text{\\large ⬣}', '\\tipn': '\\text{\\large ⬡}' } });
-    }
+    const mathOpts = { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false, strict: false, macros: { '\\hexn': '\\text{\\large ⬣}', '\\tipn': '\\text{\\large ⬡}' } };
+    window.renderMath = (el) => { if (window.renderMathInElement) renderMathInElement(el, mathOpts); };
+    window.renderMath(document.body);
 
     // nav highlight
     const links = [...document.querySelectorAll('.nav a[href^="#"]')];
@@ -30,7 +30,11 @@
     }, { rootMargin: '-45% 0px -50% 0px' });
     document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s));
 
+    // the video block only shows up if media/video.mp4 is there
+    const vid = document.getElementById('intro-video');
+    if (vid) vid.addEventListener('loadedmetadata', () => { vid.closest('section').hidden = false; });
+
     const safe = (f) => { try { f && f(); } catch (e) { console.error(e); } };
-    safe(window.initFigures); safe(window.initLab); safe(window.initWorst); safe(window.initChecks);
+    safe(window.initFigures); safe(window.initLab); safe(window.initWorst); safe(window.initChecks); safe(window.initMore);
   });
 })();

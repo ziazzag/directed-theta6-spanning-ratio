@@ -299,12 +299,37 @@
     const s = spanningRatio(pts, buildTheta6(pts)).ratio;
     return { pts: pts.map((p) => ({ x: p.x, y: p.y })), score: s, best: pts.map((p) => ({ x: p.x, y: p.y })), bestScore: s, iter: 0 };
   }
+  // greedy spiral: a_{k+1} = a_k turned by phi (60 deg) around t=(0,0) and scaled by rho
+  // returns [t, a_0, a_1, ...] so s = index 1, t = index 0
+  function spiralPoints(n, rho, alphaDeg, phiDeg) {
+    phiDeg = phiDeg == null ? 60 : phiDeg;
+    const pts = [{ x: 0, y: 0 }];
+    for (let k = 0; k < n; k++) {
+      const a = (240 + alphaDeg + k * phiDeg) * DEG, r = Math.pow(rho, k);
+      pts.push({ x: r * Math.cos(a), y: r * Math.sin(a) });
+    }
+    return pts;
+  }
+  // how many times a path turns around the point c (signed, ccw > 0)
+  function windingAround(pts, path, c) {
+    c = c || { x: 0, y: 0 };
+    let tot = 0;
+    for (let i = 1; i < path.length; i++) {
+      const a = pts[path[i - 1]], b = pts[path[i]];
+      if (Math.hypot(b.x - c.x, b.y - c.y) < 1e-15) break;
+      let d = Math.atan2(b.y - c.y, b.x - c.x) - Math.atan2(a.y - c.y, a.x - c.x);
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d < -Math.PI) d += 2 * Math.PI;
+      tot += d;
+    }
+    return tot / (2 * Math.PI);
+  }
   const api = {
     searchStep, newSearch,
     SQRT3, BIS, BND, mod6, coneOf, hexNorm, tippedNorm, dist, proj,
     buildTheta6, buildTheta6ByTriangles, canonicalTriangle, strictlyInsideTriangle,
     adjacency, dijkstra, spanningRatio, shortestPath, greedyRoute, greedyRatio,
-    lowerBound5, rayIntersect, segmentCrossesRay, rng, inGeneralPosition,
+    lowerBound5, rayIntersect, segmentCrossesRay, rng, inGeneralPosition, spiralPoints, windingAround,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Theta6 = api;
