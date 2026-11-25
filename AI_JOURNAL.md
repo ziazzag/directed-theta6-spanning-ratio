@@ -36,7 +36,7 @@ This journal follows the course requirements: tools and models, significant prom
   - I questioned the usefulness of the "checks" section and kept it because it shows how the code is validated.
   - Published on GitHub Pages and posted on the forum.
 - **Final version (until 25 November).** Same way of working: iterations with the assistant, then independent review.
-  - Worked locally first, published only at the end.
+  - Worked locally first, published only at the end. For the final version the code and this journal are public too, as the course asks for a public repository with all the code.
   - I went through the page with the assistant to look for missing content: points that could be explained more precisely or illustrated better. This led to two additions planned in my proposal: the slider on δ for the 4 − ε example and the figure of the two candidate paths. The assistant first said the figure was out of scope (too long, hard to verify); I questioned this and it was then done in a few minutes.
   - I asked for a complete re-audit: every reference (authors, dates, volumes, pages), every number on the page, coherence with the course requirements and whether everything stays explainable for me.
   - I asked for more of the proof to be explained on the page: why the region R is empty, the derivation of inequality (2) and where each family of inequalities of the linear programs comes from.
