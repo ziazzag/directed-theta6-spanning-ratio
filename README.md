@@ -49,7 +49,7 @@ python experiments/lp_crosscheck.py  # should print 16 infeasible and the 4 case
 | `experiments/lp_crosscheck.py` | the 20 linear programs solved again with scipy, to compare with `js/lp.js` |
 | `media/video.mp4` | short animated video (the page only shows the video block if this file exists) |
 | `AI_JOURNAL.md` | AI journal |
-| `ai-journal.html` | the same journal as a web page, linked from the menu (rebuilt with `node make-journal-html.js` in the parent folder) |
+| `ai-journal.html` | the same journal as a web page, linked from the menu and generated from `AI_JOURNAL.md` |
 
 ## Conventions
 
