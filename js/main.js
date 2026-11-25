@@ -30,9 +30,9 @@
     }, { rootMargin: '-45% 0px -50% 0px' });
     document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s));
 
-    // the video block only shows up if media/video.mp4 is there
+    // hide the video block if media/video.mp4 cannot be loaded
     const vid = document.getElementById('intro-video');
-    if (vid) vid.addEventListener('loadedmetadata', () => { vid.closest('section').hidden = false; });
+    if (vid) vid.addEventListener('error', () => { vid.closest('section').hidden = true; });
 
     const safe = (f) => { try { f && f(); } catch (e) { console.error(e); } };
     safe(window.initFigures); safe(window.initLab); safe(window.initWorst); safe(window.initChecks); safe(window.initMore);
