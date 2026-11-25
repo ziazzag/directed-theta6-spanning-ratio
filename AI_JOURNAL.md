@@ -9,7 +9,7 @@ This journal follows the course requirements: tools and models, significant prom
 ## 1. Tools and access limits
 
 - **Claude** (Anthropic) for the technical part: understanding the paper, the code, the checks. For the website I used **Claude Code** (Opus 5.5) in the VS Code extension. It could read and write the files of my project folder, run Node.js (tests, experiments) and open the page in Chrome to check the layout.
-- **Perplexity** for the documentation: searching related articles and summarising them, I personally think it outperforms Claude for this kind of task.
+- **Perplexity** for the documentation: searching related articles and summarising them. I personally think it outperforms Claude for this kind of task.
 - **How I worked:** in iterations, on 4 different days for the preliminary version and 5 different days for the final version. In between I reviewed and corrected the site on my own, without AI (section 2). A session usually went like this: I described one change, looked at the result in the browser and then kept it, corrected it or asked for something else.
 - **Topic choice:** I used Perplexity to get a list of candidate articles. The choice was mine (section 2).
 - **Python + scipy**, only for an independent cross-check of the linear programs (`experiments/lp_crosscheck.py`).
